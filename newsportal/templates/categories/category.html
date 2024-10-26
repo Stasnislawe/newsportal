@@ -1,0 +1,82 @@
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+<!-- Подключаем новый файл с нашим тегом -->
+{% load custom_tags %}
+
+{% block title %}
+Posts
+{% endblock title %}
+
+{% block content %}
+   <h1>Все новости на категорию {{ category.name_category }}</h1>
+
+
+   <h3>{% current_time '%b %d %Y %A' %}</h3>
+
+   <hr>
+   {% if category_news_list %}
+       <table>
+           <tr>
+               <td style="width: 80px; text-align: center;"><h4>ID</h4></td>
+               <td style="width: 250px; text-align: center;"><h4>Название</h4></td>
+               <td style="width: 250px; text-align: center;"><h4>Дата публикации</h4></td>
+               <td style="width: 250px; text-align: center;"><h4>Текст</h4></td>
+               <td style="width: 100px; text-align: center;"><h4>Автор</h4></td>
+               <td style="width: 140px; text-align: center;"><h4> Категория </h4></td>
+               <td><h4>Тип публикации</h4></td>
+           </tr>
+
+           {% for post in category_news_list %}
+           <tr>
+               <td><h5><a href="{{ post.id }}">{{ post.id }}</a></h5></td>
+               <td><h5>{{ post.heading|censor }}</h5></td>
+               <td><h5>{{ post.time_create }}</h5></td>
+               <td><h5>{{ post.text|truncatechars:20|censor }}</h5></td>
+               <td><h5>{{ post.author }}</h5></td>
+               <td>
+                   <h5>
+                       {% for category in post.posts_mtm.all %}
+                       <a href="{% url 'category_list' category.id %}">{{ category.name_category }}</a>
+                       {% endfor %}
+                   </h5>
+               </td>
+               <td><h5>{{ post.get_post_type_display }}</h5></td>
+           </tr>
+           {% endfor %}
+
+       </table>
+        {% if is_not_subscriber %}
+            <p class="text-center"><a href="{% url 'subscribe' category.id %}" class="btn btn-secondary btn-sm">Подписаться</a></p>
+        {% endif %}
+        {% if if_subscriber %}
+            <p class="text-center"><a href="{% url 'unsubscribe' category.id %}" class="btn btn-secondary btn-sm">Отписаться</a></p>
+        {% endif %}
+    {% else %}
+
+       <h2>Новостей нет!</h2>
+   {% endif %}
+{# Добавляем пагинацию на страницу #}
+
+   {# Информация о предыдущих страницах #}
+   {% if page_obj.has_previous %}
+       <a href="?page=1">1</a>
+       {% if page_obj.previous_page_number != 1 %}
+           ...
+           <a href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
+       {% endif %}
+   {% endif %}
+
+   {# Информация о текущей странице #}
+   {{ page_obj.number }}
+
+   {# Информация о следующих страницах #}
+   {% if page_obj.has_next %}
+       <a href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
+       {% if paginator.num_pages != page_obj.next_page_number %}
+           ...
+           <a href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
+       {% endif %}
+   {% endif %}
+
+{% endblock content %}

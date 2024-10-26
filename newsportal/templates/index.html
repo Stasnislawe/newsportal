@@ -1,0 +1,37 @@
+{% extends 'flatpages/default.html' %}
+{% load i18n %}
+
+{% block content %}
+<form action="{% url 'set_language' %}" method="POST"> {% csrf_token %} <!-- Не забываем по csrf_token для POST запросов -->
+    <input type="hidden" name="next" value="{{ redirect_to }}">
+
+    <select name="language" id="">
+        {% get_available_languages as LANGUAGES %} <!-- получаем языки -->
+        {% get_language_info_list for LANGUAGES as languages %} <!-- Помещаем их в список languages -->
+
+        {% for language in languages %} <!-- Итерируясь по списку, выводим их название на языке пользователя и код -->
+            <option value="{{ language.code }}" {% if language.code == LANGUAGE_CODE %} selected {% endif %}>
+                {{ language.name_local }} - {{ language.code }}
+            </option>
+        {% endfor %}
+    </select>
+    <input type="submit" value="set">
+</form>
+
+<h2>{% trans "Пользователь" %} {{request.user.username}}</h2>
+<div>{% trans "Здесь может содержаться персональная информация для каждого пользователя" %}</div>
+
+{% if not is_not_author %}
+    <h4 align="left">{% trans "Автор" %}✔️</h4>
+    <div align="left"><button><a href="disupgrade/">{% trans "Убрать роль!" %}</a> </button></div>
+{% endif %}
+
+{% if is_not_author %}
+    <h4 align="left">Автор ❌</h4>
+    <div align="left"><button><a href="upgrade/">{% trans "Хочу роль Authors!" %}</a> </button></div>
+{% endif %}
+
+<div align="right"><button><a class="nav-link" href="/sign/logout/">{% trans "Выйти" %}</a></button></div>
+{% endblock %}
+
+

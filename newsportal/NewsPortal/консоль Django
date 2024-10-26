@@ -1,0 +1,114 @@
+1:
+ Основные юзеры:
+ 1.1 >>>User.objects.create_user('Antoxa')
+ 1.2 >>>User.objects.create_user('Polina')
+ Создал еще двух юзеров:
+ >>>User.objects.create_user('Юзер 3')
+ >>>User.objects.create_user('Юзер 4')
+
+2:
+ 2.1 >>>Author.objects.create(user=User.objects.get(pk=1))
+ 2.2 >>>Author.objects.create(user=User.objects.get(pk=2))
+
+3:
+>>>Category.objects.create(name_category = 'Спорт')
+>>>Category.objects.create(name_category = 'Политика')
+>>>Category.objects.create(name_category = 'АвтоСпорт')
+>>>Category.objects.create(name_category = 'Наука')
+4:
+>>>Post.objects.create(post_type='AR', heading = 'Рещающий момент', text = 'аааааааааааааааа', author = Author.objects.get(pk=2))
+>>>Post.objects.create(post_type='AR', heading = 'Мастер-класс', text = 'bbbbbbbbbbbbbb', author = Author.objects.get(pk=2))
+>>>Post.objects.create(post_type='NW', heading = 'Сенсация Дня', text = 'cccccccccccccс', author = Author.objects.get(pk=1))
+5:
+  Одна статья с 3-мя категориями:
+>>>PostCategory.objects.create(post = Post.objects.get(pk=1), category = Category.objects.get(pk=1))
+>>>PostCategory.objects.create(post = Post.objects.get(pk=1), category = Category.objects.get(pk=3))
+>>>PostCategory.objects.create(post = Post.objects.get(pk=1), category = Category.objects.get(pk=2))
+  =================================================================================================
+
+>>>PostCategory.objects.create(post = Post.objects.get(pk=2), category = Category.objects.get(pk=4))
+
+>>>PostCategory.objects.create(post = Post.objects.get(pk=3), category = Category.objects.get(pk=1))
+
+6:
+  Два комментария к 1 статье
+>>>Comment.objects.create(comment='Вау', post = Post.objects.get(pk=1), user = User.objects.get(pk=1))
+>>>Comment.objects.create(comment='Круто', post = Post.objects.get(pk=1), user = User.objects.get(pk=2))
+  =====================================================================================================
+
+>>>Comment.objects.create(comment='Очень понравилось', post = Post.objects.get(pk=2), user = User.objects.get(pk=3))
+
+>>>Comment.objects.create(comment='Очень понравилось', post = Post.objects.get(pk=3), user = User.objects.get(pk=4))
+
+7:
+  Первый пост
+  Для удобства: >>>p1 = Post.objects.get(pk=1)
+  >>>p1.like()
+  >>>p1.like()
+  >>>p1.rating_post
+  Второй пост
+  p2 = Post.objects.get(pk=2)
+  >>>p2.like()
+  >>>p2.rating_post
+  Третий пост
+  p3 = Post.objects.get(pk=3)
+  >>>p3.like()
+  >>>p3.like()
+  >>>p3.like()
+  >>>p3.like()
+  >>>p3.dislike()
+  >>>p3.rating_post
+  =================================================
+
+  Комментарий 1:
+>>>C1 = Comment.objects.get(pk=1)
+>>>C1.like()
+>>>C1.like()
+>>>C1.rating_comment
+  Комментарий 2:
+>>>C2 = Comment.objects.get(pk=2)
+>>>C2.dislike()
+>>>C2.rating_comment
+  Комментарий 3:
+>>>C3 = Comment.objects.get(pk=3)
+>>>C3.like()
+>>>C3.like()
+>>>C3.like()
+>>>C3.dislike()
+>>>C3.rating_comment
+  Комментарий 4:
+>>> C4 = Comment.objects.get(pk=4)
+>>> C4.like()
+>>> C4.rating_comment
+
+8:
+
+>>> a1 = Author.objects.get(pk=1)
+>>> a1.update_rating()
+
+>>> a2 = Author.objects.get(pk=2)
+>>> a2.update_rating()
+
+9:
+
+>>> Author.objects.filter().order_by('-rating').values('rating', 'user')[0]
+<QuerySet [{'rating': 12, 'user': 1}]>
+>>> User.objects.get(pk=1)
+<User: Antoxa>
+
+10:
+
+>>> Post.objects.filter().order_by('-rating_post').values('heading', 'rating_post', 'time_create', 'author')[0]
+>>> Post.objects.get(rating_post=3).preview()
+
+ИЛИ
+
+>>> Post.objects.filter().order_by('-rating_post').values('heading', 'rating_post', 'time_create', 'author__user__username')[0]
+>>> Post.objects.get(heading = 'Сенсация Дня').preview()
+
+11:
+
+>>> Comment.objects.filter(post=3).values('time_create_comment', 'user__username', 'rating_comment', 'comment')
+
+
+
