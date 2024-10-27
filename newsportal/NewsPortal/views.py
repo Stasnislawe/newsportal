@@ -1,16 +1,18 @@
 from django.db.models import Count
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView, TemplateView
-from .models import Post, Category
+from .models import Post, Category, Comment, Author
 from .filters import SearchFilter
-from .forms import PostForm
+from .forms import PostForm, CommentForm, AuthorForm
 from django.core.cache import cache
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext as _
 from .tasks import new_post_added
+from sign.views import upgrade_me
+
 
 class PostsList(ListView):
     model = Post
@@ -40,7 +42,14 @@ class OnlyNews(ListView):
 
     def get_context_data(self, **kwargs):
         kwargs['news'] = Post.objects.filter(post_type='NW').all()
+        kwargs['cntnews'] = Post.objects.filter(post_type='NW').count()
+        kwargs['filterset'] = self.filterset
         return super().get_context_data(**kwargs)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        self.filterset = SearchFilter(self.request.GET, queryset)
+        return self.filterset.qs
 
 
 class OnlyArt(ListView):
@@ -51,18 +60,31 @@ class OnlyArt(ListView):
     paginate_by = 10
 
     def get_context_data(self, **kwargs):
-        kwargs['news'] = Post.objects.filter(post_type='AR')
+        kwargs['news'] = Post.objects.filter(post_type='AR').all()
         kwargs['cntnews'] = Post.objects.filter(post_type='AR').count()
+        kwargs['filterset'] = self.filterset
         return super().get_context_data(**kwargs)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        self.filterset = SearchFilter(self.request.GET, queryset)
+        return self.filterset.qs
 
 
 class PostDetail(DetailView):
     # Модель всё та же, но мы хотим получать информацию по отдельному товару
     model = Post
     ordering = 'heading'
+    comment_form = CommentForm
     template_name = 'post.html'
     # Название объекта, в котором будет выбранный пользователем продукт
     context_object_name = 'post'
+
+
+    def get_context_data(self, **kwargs):
+        kwargs['comments'] = Comment.objects.filter(post_id=self.object.pk).all()
+        kwargs['form'] = self.comment_form
+        return super().get_context_data(**kwargs)
 
     def get_object(self, *args, **kwargs):
         obj = cache.get(f'product-{self.kwargs["pk"]}', None)
@@ -89,6 +111,7 @@ class PostSearch(ListView):
         self.filterset = SearchFilter(self.request.GET, queryset)
         return self.filterset.qs
 
+
 class PostCreate(PermissionRequiredMixin, CreateView):
     permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
     form_class = PostForm
@@ -103,11 +126,13 @@ class PostCreate(PermissionRequiredMixin, CreateView):
         #new_post_added.delay(post.pk)
         return super().form_valid(form)
 
+
 class NewsDelete(PermissionRequiredMixin, DeleteView):
     permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
     model = Post
     template_name = 'news_delete.html'
     success_url = reverse_lazy('news_list')
+
 
 class NewsEdit(PermissionRequiredMixin, UpdateView):
     permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
@@ -115,17 +140,20 @@ class NewsEdit(PermissionRequiredMixin, UpdateView):
     model = Post
     template_name = 'news_edit.html'
 
+
 class ArticleDelete(PermissionRequiredMixin, DeleteView):
     permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
     model = Post
     template_name = 'article_delete.html'
     success_url = reverse_lazy('news_list')
 
+
 class ArticleEdit(PermissionRequiredMixin, UpdateView):
     permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
     form_class = PostForm
     model = Post
     template_name = 'article_edit.html'
+
 
 class CategoryListView(PostsList):
     model = Post
@@ -139,7 +167,6 @@ class CategoryListView(PostsList):
         self.filterset = SearchFilter(self.request.GET, queryset)
         return queryset
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['is_not_subscriber'] = self.request.user not in self.category.subscribers.all()
@@ -147,6 +174,23 @@ class CategoryListView(PostsList):
         context['category'] = self.category
         context['filterset'] = self.filterset
         return context
+
+
+@login_required
+def comment(request, pk):
+    form = CommentForm(request.POST)
+    post = get_object_or_404(Post, pk=pk)
+
+    if form.is_valid():
+        comment = Comment()
+        comment.post = post
+        comment.user = request.user
+        comment.comment = form.cleaned_data['comment']
+        photo = Author.objects.filter(user=comment.user.pk).values('photo')
+        comment.save()
+
+    return redirect(post.get_absolute_url())
+
 
 @login_required
 def subscribe(request, pk):
@@ -157,6 +201,7 @@ def subscribe(request, pk):
     message = 'Вы успешно подписались на рассылку постов на тему'
     return render(request, 'categories/subc.html', {'category': category, 'message': message})
 
+
 @login_required
 def unsubscribe(request, pk):
     user = request.user
@@ -166,3 +211,16 @@ def unsubscribe(request, pk):
     message = 'Вы отписались от рассылок постов на тему'
     return render(request, 'categories/subc.html', {'category': category, 'message': message})
 
+#
+# class AuthorCreate(CreateView):
+#     model = Author
+#     template_name = 'author_create.html'
+#     form_class = AuthorForm
+#     success_url = reverse_lazy('index')
+#
+#     def form_valid(self, form):
+#         self.object = form.save(commit=False)
+#         self.object.user = self.request.user
+#         self.object.save()
+#         upgrade_me(self.request)
+#         return super().form_valid(form)

@@ -7,6 +7,8 @@ from django.core.cache import cache
 
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    username = models.CharField(max_length=20, unique=True)
+    description = models.CharField(max_length=250, default='Пользователь еще не добавил описание своего профиля')
     rating = models.IntegerField(default=0)
     photo = models.ImageField(upload_to='authors/', default='nophoto.jpg')
 
@@ -61,7 +63,7 @@ class Post(models.Model):
         return self.text[0:125] + '...'
 
     def __str__(self):
-        return f'{self.heading} {self.post_type}'
+        return f'{self.heading} {self.post_type} - {self.author}'
 
     def get_absolute_url(self):
         return reverse('news_detail', args=[str(self.id)])
@@ -75,9 +77,9 @@ class PostCategory(models.Model):
     category = models.ForeignKey(Category, on_delete = models.CASCADE)
 
 class Comment(models.Model):
-    comment = models.CharField(max_length = 255)
+    comment = models.CharField(max_length=255)
     time_create_comment = models.DateTimeField(auto_now_add=True)
-    rating_comment = models.IntegerField(default = 0)
+    rating_comment = models.IntegerField(default=0)
 
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name ='comments')
@@ -91,5 +93,5 @@ class Comment(models.Model):
         self.save()
 
     def __str__(self):
-        return self.comment, self.time_create_comment, self.rating_comment, self.post, self.user
+        return '{} {} {} {} {}'.format(self.comment, self.time_create_comment, self.rating_comment, self.post, self.user)
 

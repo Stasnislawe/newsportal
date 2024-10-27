@@ -72,7 +72,7 @@ Posts
 	            	<h3 class="sidebar-heading">Категории</h3>
 	              <ul class="categories">
 					{% for i in top5cat %}
-	                <li><a href="{% url 'category_list' i.pk %}">{{ i }}<span>(6)</span></a></li>
+	                <li><a href="{% url 'category_list' i.pk %}">{{ i }}<span>{{ i.subscribers|length }}</span></a></li>
 					{% endfor %}
 	              </ul>
 	            </div>
@@ -83,7 +83,7 @@ Posts
 	              <div class="block-21 mb-4 d-flex">
 	                <a class="blog-img mr-4" style="background-image: url({{ ps.image.url }});"></a>
 	                <div class="text">
-	                  <h3 class="heading"><a href="#">{{ ps.heading }}</a></h3>
+	                  <h3 class="heading"><a href="{% url 'news_detail' ps.pk %}">{{ ps.heading }}</a></h3>
 	                  <div class="meta">
 	                    <div><a href="#"><span class="icon-calendar"></span>{{ ps.time_create }}</a></div>
 	                    <div><a href="#"><span class="icon-person"></span>{{ ps.author }}</a></div>
@@ -99,7 +99,7 @@ Posts
 	            	<h3 class="sidebar-heading"></h3>
 	              <ul class="categories">
 	              	<li><a href="{% url 'news' %}">Новости<span>{{ cntnews }}</span></a></li>
-	                <li><a href="{% url 'art' %}">Статьи<span></span></a></li>
+	                <li><a href="{% url 'art' %}">Статьи<span>{{ cntnews }}</span></a></li>
 	              </ul>
 	            </div>
 

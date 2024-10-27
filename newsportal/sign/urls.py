@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth.views import LoginView, LogoutView
-from .views import BaseRegisterView, upgrade_me, disupgrade_me, IndexView
+from .views import upgrade_me, disupgrade_me, IndexView, BaseRegisterView
 
 urlpatterns = [
     path('login/',
@@ -13,6 +13,6 @@ urlpatterns = [
          BaseRegisterView.as_view(template_name = 'sign/signup.html'),
          name='signup'),
     path('index/', IndexView.as_view(), name='index'),
-    path('index/upgrade/', upgrade_me, name = 'upgrade'),
+    path('index/upgrade/', upgrade_me, name='upgrade'),
     path('index/disupgrade/', disupgrade_me, name = 'disupgrade')
 ]
