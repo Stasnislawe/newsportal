@@ -120,6 +120,7 @@ class PostCreate(PermissionRequiredMixin, CreateView):
 
     def form_valid(self, form):
         post = form.save(commit=False)
+        post.author = self.request.user
         if self.request.path == '/newsportal/article/create/':
             post.post_type = 'AR'
         post.save()
@@ -214,7 +215,7 @@ def unsubscribe(request, pk):
 #
 # class AuthorCreate(CreateView):
 #     model = Author
-#     template_name = 'author_create.html'
+#     template_name = 'authorcreate.html'
 #     form_class = AuthorForm
 #     success_url = reverse_lazy('index')
 #

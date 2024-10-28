@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.http import request
+from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from django.shortcuts import redirect
 from django.contrib.auth.models import Group
@@ -50,11 +51,12 @@ class IndexView(LoginRequiredMixin, TemplateView):
 class CreateAuthor(CreateView):
     model = Author
     form_class = AuthorForm
-    success_url = 'index'
+    success_url = reverse_lazy('index')
     template_name = 'authorcreate.html'
 
     def form_valid(self, form):
-        self.object = self.form_class
-        self.object.author = self.request.user.pk
+        self.object = form.save(commit=False)
+        self.object.user = self.request.user
         self.object.save()
+        upgrade_me(self.request)
         return super().form_valid(form)

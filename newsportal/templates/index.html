@@ -41,23 +41,7 @@
         <div class="row block-9">
           <div class="col-lg-6 d-flex">
               {% if is_not_author %}
-              {% if form %}
-              <form action="" method="post" class="bg-light p-5 contact-form">
-                  {% csrf_token %}
-	              <input type="file" name="photo" multiple id="id_photo" class="form-group">
-	              <div class="form-group">
-                      <label for="id_username">Никнейм</label>
-	                <input type="text" name="username" id="id_username" class="form-control" placeholder="Никнейм">
-	              </div>
-	              <div class="form-group">
-                      <label for="id_description">О себе</label>
-	                <input type="text" name="description" id="id_description" class="form-control" placeholder="О себе">
-	              </div>
-                  <div class="form-group">
-	                <input type="submit" value="Сохранить изменения" class="btn btn-primary py-3 px-5">
-				  </div>
-            </form>
-              {% endif %}
+              {% include 'authorcreate.html' %}
               {% endif %}
           </div>
           <img class="col-lg-6 d-flex" src="{% static 'images/image_1.jpg' %}">
@@ -67,36 +51,6 @@
     </section>
 	</div><!-- END COLORLIB-MAIN -->
 </div><!-- END COLORLIB-PAGE -->
-<!--<form action="{% url 'set_language' %}" method="POST"> {% csrf_token %} &lt;!&ndash; Не забываем по csrf_token для POST запросов &ndash;&gt;-->
-<!--    <input type="hidden" name="next" value="{{ redirect_to }}">-->
-
-<!--    <select name="language" id="">-->
-<!--        {% get_available_languages as LANGUAGES %} &lt;!&ndash; получаем языки &ndash;&gt;-->
-<!--        {% get_language_info_list for LANGUAGES as languages %} &lt;!&ndash; Помещаем их в список languages &ndash;&gt;-->
-
-<!--        {% for language in languages %} &lt;!&ndash; Итерируясь по списку, выводим их название на языке пользователя и код &ndash;&gt;-->
-<!--            <option value="{{ language.code }}" {% if language.code == LANGUAGE_CODE %} selected {% endif %}>-->
-<!--                {{ language.name_local }} - {{ language.code }}-->
-<!--            </option>-->
-<!--        {% endfor %}-->
-<!--    </select>-->
-<!--    <input type="submit" value="set">-->
-<!--</form>-->
-
-<!--<h2>{% trans "Пользователь" %} {{request.user.username}}</h2>-->
-<!--<div>{% trans "Здесь может содержаться персональная информация для каждого пользователя" %}</div>-->
-
-<!--{% if not is_not_author %}-->
-<!--    <h4 align="left">{% trans "Автор" %}✔️</h4>-->
-<!--    <div align="left"><button><a href="disupgrade/">{% trans "Убрать роль!" %}</a> </button></div>-->
-<!--{% endif %}-->
-
-<!--{% if is_not_author %}-->
-<!--    <h4 align="left">Автор ❌</h4>-->
-<!--    <div align="left"><button><a href="upgrade/">{% trans "Хочу роль Authors!" %}</a> </button></div>-->
-<!--{% endif %}-->
-
-<!--<div align="right"><button><a class="nav-link" href="/sign/logout/">{% trans "Выйти" %}</a></button></div>-->
 {% endblock %}
 
 

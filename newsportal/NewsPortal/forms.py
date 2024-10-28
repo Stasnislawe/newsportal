@@ -30,7 +30,6 @@ class PostForm(forms.ModelForm):
         self.fields['text2'].label = 'Содержание после изображения'
         self.fields['posts_mtm'].empty_label = None
         self.fields['posts_mtm'].label = 'Категория'
-        self.fields['author'].label = 'Автор'
 
     class Meta:
         model = Post
@@ -38,7 +37,6 @@ class PostForm(forms.ModelForm):
         fields = ['heading',
                   'text',
                   'text2',
-                  'author',
                   'posts_mtm']
 
 
