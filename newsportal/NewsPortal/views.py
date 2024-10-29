@@ -118,12 +118,16 @@ class PostCreate(PermissionRequiredMixin, CreateView):
     model = Post
     template_name = 'post_create.html'
 
+    def get_context_data(self, **kwargs):
+        kwargs['cats'] = Category.objects.all()
+        return super().get_context_data(**kwargs)
+
     def form_valid(self, form):
-        post = form.save(commit=False)
-        post.author = self.request.user
+        self.object = form.save(commit=False)
+        self.object.author = Author.objects.get(user=self.request.user)
         if self.request.path == '/newsportal/article/create/':
-            post.post_type = 'AR'
-        post.save()
+            self.post_type = 'AR'
+        self.object.save()
         #new_post_added.delay(post.pk)
         return super().form_valid(form)
 

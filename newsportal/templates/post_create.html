@@ -1,11 +1,50 @@
 {% extends 'flatpages/default.html' %}
+{% load i18n %}
+{% load static %}
 
 {% block content %}
-<h1>Создание поста</h1>
-<hr>
-<form action="" method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Save" />
-</form>
-{% endblock content %}
+	<div id="colorlib-main">
+		<section class="ftco-section contact-section px-md-4">
+      <div class="container">
+        <div class="row d-flex mb-5 contact-info">
+          <div class="col-md-12 mb-4">
+            <h2 class="h3">Создание поста</h2>
+          </div>
+        <div class="row block-9">
+          <div class="">
+              <form method="post" class="">
+                  {% csrf_token %}
+	              <input type="file" name="photo" multiple id="id_photo" class="form-group">
+	              <div class="form-group">
+                      <label for="id_heading">Заголовок</label>
+                      <textarea type="text" cols="60" rows="1" name="heading" id="id_heading" class="form-control" placeholder="Заголовок"></textarea>
+	              </div>
+	              <div class="form-group">
+                      <label for="id_text">Текст до изображения</label>
+                      <textarea name="text" id="id_text" rows="7" class="form-control" placeholder="Текст"></textarea>
+	              </div>
+                  <div class="form-group">
+                      <label for="id_text2">Текст после изображения</label>
+	                <textarea rows="7" name="text2" id="id_text2" class="form-control" placeholder="Текст"></textarea>
+	              </div>
+                  <div class="form-group">
+                      <label for="id_posts_mtm">Категория</label>
+                      <select name="posts_mtm" id="id_posts_mtm" class="form-control" required multiple>
+                          {% for i in cats %}
+                            <option value="{{ i.pk }}">{{ i.name_category }}</option>
+                          {% endfor %}
+                      </select>
+	              </div>
+                  <div class="form-group">
+	                <input type="submit" value="Опубликовать" class="btn btn-primary py-3 px-5">
+				  </div>
+              </form>
+          </div>
+        </div>
+      </div>
+    </section>
+	</div><!-- END COLORLIB-MAIN -->
+</div><!-- END COLORLIB-PAGE -->
+{% endblock %}
+
+
