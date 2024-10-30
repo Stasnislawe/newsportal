@@ -112,6 +112,18 @@ class PostSearch(ListView):
         return self.filterset.qs
 
 
+class MyPosts(PermissionRequiredMixin, ListView):
+    permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
+    model = Post
+    template_name = 'myposts.html'
+
+    def get_context_data(self, **kwargs):
+        req_user = Author.objects.get(user=self.request.user)
+        kwargs['myposts'] = Post.objects.filter(author=req_user)
+        return super().get_context_data(**kwargs)
+
+
+
 class PostCreate(PermissionRequiredMixin, CreateView):
     permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
     form_class = PostForm
@@ -215,17 +227,3 @@ def unsubscribe(request, pk):
 
     message = 'Вы отписались от рассылок постов на тему'
     return render(request, 'categories/subc.html', {'category': category, 'message': message})
-
-#
-# class AuthorCreate(CreateView):
-#     model = Author
-#     template_name = 'authorcreate.html'
-#     form_class = AuthorForm
-#     success_url = reverse_lazy('index')
-#
-#     def form_valid(self, form):
-#         self.object = form.save(commit=False)
-#         self.object.user = self.request.user
-#         self.object.save()
-#         upgrade_me(self.request)
-#         return super().form_valid(form)

@@ -40,7 +40,7 @@
 					<li><a href="{% url 'index' %}">Личный Кабинет</a></li>
                     {% if not is_not_author %}
 					<li><a href="{% url 'news_create' %}">Добавить Пост</a></li>
-					<li><a href="#">Мои Посты</a></li>
+					<li><a href="{% url 'myviews' %}">Мои Посты</a></li>
                     {% endif %}
 				</ul>
 			</nav>
