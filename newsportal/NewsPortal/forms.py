@@ -25,19 +25,23 @@ class PostForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(PostForm, self).__init__(*args, **kwargs)
+        self.fields['image'].label = 'Изображение'
         self.fields['heading'].label = 'Наименование'
         self.fields['text'].label = 'Содержание до изображения'
         self.fields['text2'].label = 'Содержание после изображения'
         self.fields['posts_mtm'].empty_label = None
         self.fields['posts_mtm'].label = 'Категория'
+        self.fields['post_type'].label = 'Тип поста'
 
     class Meta:
         model = Post
 
-        fields = ['heading',
+        fields = ['image',
+                  'heading',
                   'text',
                   'text2',
-                  'posts_mtm']
+                  'posts_mtm',
+                  'post_type']
 
 
     def clean(self):
@@ -64,12 +68,12 @@ class PostForm(forms.ModelForm):
             raise ValidationError(
                 "Минимальное количество символовов - 30")
 
-        today = date.today()
-        post_limit = Post.objects.filter(author=author, time_create__date=today).count()
-        if post_limit >= 3:
-            raise ValidationError({
-                    'text': "Вы можете публиковать только 3 поста в день!"
-            })
+        # today = date.today()
+        # post_limit = Post.objects.filter(author=author, time_create__date=today).count()
+        # if post_limit >= 3:
+        #     raise ValidationError({
+        #             'text': "Вы можете публиковать только 3 поста в день!"
+        #     })
 
         return cleaned_data
 

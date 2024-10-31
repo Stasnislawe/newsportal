@@ -1,4 +1,5 @@
 from django.db.models import Count
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView, TemplateView
 from .models import Post, Category, Comment, Author
@@ -119,7 +120,7 @@ class MyPosts(PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         req_user = Author.objects.get(user=self.request.user)
-        kwargs['myposts'] = Post.objects.filter(author=req_user)
+        kwargs['myposts'] = Post.objects.filter(author=req_user).order_by('-time_create')
         return super().get_context_data(**kwargs)
 
 
@@ -137,18 +138,25 @@ class PostCreate(PermissionRequiredMixin, CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.author = Author.objects.get(user=self.request.user)
-        if self.request.path == '/newsportal/article/create/':
-            self.post_type = 'AR'
+        # if self.object.post_type == 'AR':
+        #     self.request.path == '/newsportal/article/create'
         self.object.save()
-        #new_post_added.delay(post.pk)
         return super().form_valid(form)
 
 
 class NewsDelete(PermissionRequiredMixin, DeleteView):
     permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
     model = Post
-    template_name = 'news_delete.html'
-    success_url = reverse_lazy('news_list')
+    template_name = 'myposts.html'
+    success_url = reverse_lazy('myposts')
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.author != Author.objects.get(user=self.request.user):
+            return self.handle_no_permission()
+        success_url = self.get_success_url()
+        self.object.delete()
+        return HttpResponseRedirect(success_url)
 
 
 class NewsEdit(PermissionRequiredMixin, UpdateView):
@@ -157,19 +165,31 @@ class NewsEdit(PermissionRequiredMixin, UpdateView):
     model = Post
     template_name = 'news_edit.html'
 
+    def get_context_data(self, **kwargs):
+        kwargs['update'] = True
+        kwargs['cats'] = Category.objects.all()
+        return super().get_context_data(**kwargs)
 
-class ArticleDelete(PermissionRequiredMixin, DeleteView):
-    permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
-    model = Post
-    template_name = 'article_delete.html'
-    success_url = reverse_lazy('news_list')
+    def get_form_kwargs(self):
+        self.object = self.get_object()
+        kwargs = super().get_form_kwargs()
+        if self.object.author != Author.objects.get(user=self.request.user):
+            return self.handle_no_permission()
+        return kwargs
 
 
-class ArticleEdit(PermissionRequiredMixin, UpdateView):
-    permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
-    form_class = PostForm
-    model = Post
-    template_name = 'article_edit.html'
+# class ArticleDelete(PermissionRequiredMixin, DeleteView):
+#     permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
+#     model = Post
+#     template_name = 'article_delete.html'
+#     success_url = reverse_lazy('news_list')
+#
+#
+# class ArticleEdit(PermissionRequiredMixin, UpdateView):
+#     permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
+#     form_class = PostForm
+#     model = Post
+#     template_name = 'article_edit.html'
 
 
 class CategoryListView(PostsList):

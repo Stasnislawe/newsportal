@@ -1,4 +1,4 @@
-<form action="{% url 'createauthor' %}" method="post" class="bg-light p-5 contact-form">
+<form action="{% url 'createauthor' %}" enctype="multipart/form-data" method="post" class="bg-light p-5 contact-form">
                   {% csrf_token %}
 	              <input type="file" name="photo" multiple id="id_photo" class="form-group">
 	              <div class="form-group">

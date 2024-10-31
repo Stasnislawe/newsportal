@@ -20,11 +20,11 @@ Posts
 						<p class="meta">
 							<span><i class="icon-calendar mr-2"></i>{{ post.time_create }}</span>
 							<span><a href="{% url 'news_detail' post.id %}"><i class="icon-folder-o mr-2"></i>{{ post.get_post_type_display }}</a></span>
-							<span><i class="icon-comment2 mr-2"></i>5 Comment</span>
+							<span><i class="icon-comment2 mr-2"></i>{{ post.author }}</span>
 						</p>
 					</div>
 					<p class="mb-4">{{ post.text|truncatechars:95 }}</p>
-					<p><a href="{% url 'news_detail' post.id %}" class="btn-custom">Read More <span class="ion-ios-arrow-forward"></span></a></p>
+					<p><a href="{% url 'news_detail' post.id %}" class="btn-custom">Read More</a></p>
 				</div>
 			</div>
 		</div>

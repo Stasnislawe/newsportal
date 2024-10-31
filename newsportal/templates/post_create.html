@@ -12,9 +12,10 @@
           </div>
         <div class="row block-9">
           <div class="">
-              <form method="post" class="">
+              <form method="post" class="" enctype="multipart/form-data">
                   {% csrf_token %}
-	              <input type="file" name="photo" multiple id="id_photo" class="form-group">
+                    <label for="id_image">Изображение</label>
+	                <input type="file" name="image" multiple id="id_image" class="form-group">
 	              <div class="form-group">
                       <label for="id_heading">Заголовок</label>
                       <textarea type="text" cols="60" rows="1" name="heading" id="id_heading" class="form-control" placeholder="Заголовок"></textarea>
@@ -27,6 +28,13 @@
                       <label for="id_text2">Текст после изображения</label>
 	                <textarea rows="7" name="text2" id="id_text2" class="form-control" placeholder="Текст"></textarea>
 	              </div>
+                  <div class="form-group">
+                      <label for="id_post_type">Тип поста</label>
+                      <select name="post_type" id="id_post_type" class="form-control" required multiple>
+                          <option value="AR">Статья</option>
+                          <option value="NW">Новость</option>
+                      </select>
+                  </div>
                   <div class="form-group">
                       <label for="id_posts_mtm">Категория</label>
                       <select name="posts_mtm" id="id_posts_mtm" class="form-control" required multiple>
