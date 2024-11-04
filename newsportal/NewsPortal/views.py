@@ -190,20 +190,6 @@ class NewsEdit(PermissionRequiredMixin, UpdateView):
         return kwargs
 
 
-# class ArticleDelete(PermissionRequiredMixin, DeleteView):
-#     permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
-#     model = Post
-#     template_name = 'article_delete.html'
-#     success_url = reverse_lazy('news_list')
-#
-#
-# class ArticleEdit(PermissionRequiredMixin, UpdateView):
-#     permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
-#     form_class = PostForm
-#     model = Post
-#     template_name = 'article_edit.html'
-
-
 class CategoryListView(PostsList):
     model = Post
     template_name = 'categories/category.html'
@@ -248,7 +234,7 @@ def subscribe(request, pk):
     category.subscribers.add(user)
 
     message = 'Вы успешно подписались на рассылку постов на тему'
-    return render(request, 'categories/subc.html', {'category': category, 'message': message})
+    return render(request, 'categories/category.html', {'category': category, 'message': message})
 
 
 @login_required
@@ -258,4 +244,4 @@ def unsubscribe(request, pk):
     category.subscribers.remove(user)
 
     message = 'Вы отписались от рассылок постов на тему'
-    return render(request, 'categories/subc.html', {'category': category, 'message': message})
+    return render(request, 'categories/category.html', {'category': category, 'message': message})

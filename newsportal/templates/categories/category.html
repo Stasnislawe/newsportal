@@ -1,7 +1,6 @@
 {% extends 'flatpages/default.html' %}
-
+{% load static %}
 {% load custom_filters %}
-<!-- Подключаем новый файл с нашим тегом -->
 {% load custom_tags %}
 
 {% block title %}
@@ -9,74 +8,138 @@ Posts
 {% endblock title %}
 
 {% block content %}
-   <h1>Все новости на категорию {{ category.name_category }}</h1>
-
-
-   <h3>{% current_time '%b %d %Y %A' %}</h3>
-
-   <hr>
-   {% if category_news_list %}
-       <table>
-           <tr>
-               <td style="width: 80px; text-align: center;"><h4>ID</h4></td>
-               <td style="width: 250px; text-align: center;"><h4>Название</h4></td>
-               <td style="width: 250px; text-align: center;"><h4>Дата публикации</h4></td>
-               <td style="width: 250px; text-align: center;"><h4>Текст</h4></td>
-               <td style="width: 100px; text-align: center;"><h4>Автор</h4></td>
-               <td style="width: 140px; text-align: center;"><h4> Категория </h4></td>
-               <td><h4>Тип публикации</h4></td>
-           </tr>
-
-           {% for post in category_news_list %}
-           <tr>
-               <td><h5><a href="{{ post.id }}">{{ post.id }}</a></h5></td>
-               <td><h5>{{ post.heading|censor }}</h5></td>
-               <td><h5>{{ post.time_create }}</h5></td>
-               <td><h5>{{ post.text|truncatechars:20|censor }}</h5></td>
-               <td><h5>{{ post.author }}</h5></td>
-               <td>
-                   <h5>
-                       {% for category in post.posts_mtm.all %}
-                       <a href="{% url 'category_list' category.id %}">{{ category.name_category }}</a>
-                       {% endfor %}
-                   </h5>
-               </td>
-               <td><h5>{{ post.get_post_type_display }}</h5></td>
-           </tr>
-           {% endfor %}
-
-       </table>
+<div class="col-xl-8 py-5 px-md-5">
+	<div class="row pt-md-4">
+        <div style="width: 100%; display:flex; justify-content: center; padding-bottom: 20px;">
         {% if is_not_subscriber %}
-            <p class="text-center"><a href="{% url 'subscribe' category.id %}" class="btn btn-secondary btn-sm">Подписаться</a></p>
+            <p class="text-center"><a href="{% url 'subscribe' category.id %}" class="btn btn-secondary btn-sm">Подписаться на рассылку постов на тему {{ category }}</a></p>
         {% endif %}
         {% if if_subscriber %}
-            <p class="text-center"><a href="{% url 'unsubscribe' category.id %}" class="btn btn-secondary btn-sm">Отписаться</a></p>
+            <p class="text-center"><a href="{% url 'unsubscribe' category.id %}" class="btn btn-secondary btn-sm">Отписаться от рассылки постов на тему {{ category }}</a></p>
         {% endif %}
-    {% else %}
+        </div>
+{% for post in category_news_list %}
+		<div class="col-md-12">
+			<div class="blog-entry ftco-animate d-md-flex">
+				<a href="{% url 'news_detail' post.id %}" class="img img-2" style="background-image: url({{ post.image.url }});"></a>
+				<div class="text text-2 pl-md-4">
+					<h3 class="mb-2"><a href="{% url 'news_detail' post.id %}">{{ post.heading }}</a></h3>
+					<div class="meta-wrap">
+						<p class="meta">
+							<span><i class="icon-calendar mr-2"></i>{{ post.time_create }}</span>
+							<span><a href="{% url 'news_detail' post.id %}"><i class="icon-folder-o mr-2"></i>{{ post.get_post_type_display }}</a></span>
+							<span><i class="icon-comment2 mr-2"></i>{{ post.author }}</span>
+						</p>
+					</div>
+					<p class="mb-4">{{ post.text|truncatechars:95 }}</p>
+					<p><a href="{% url 'news_detail' post.id %}" class="btn-custom">Read More</a></p>
+				</div>
+			</div>
+		</div>
+{% endfor %}
 
-       <h2>Новостей нет!</h2>
-   {% endif %}
-{# Добавляем пагинацию на страницу #}
+</div>
+	<div class="row">
+		<div class="col">
+			<div class="block-27">
+			    <ul>
+					{% if page_obj.has_previous %}
+						<li>
+							<a href="?{% url_replace page=page_obj.previous_page_number %}">&lt;</a>
+						</li>
+					{% endif %}
+					{% for p in paginator.page_range %}
+                   		{% if page_obj.number == p %}
+							<li class="active"><a>{{ p }}</a></li>
+						{% elif p >= page_obj.number|add:-2 and p <= page_obj.number|add:2  %}
+							<li>
+								<a href="?{% url_replace page=p %}">{{ p }}</a>
+							</li>
+						{% endif %}
+					{% endfor %}
+					{% if page_obj.has_next %}
+						<li>
+							<a href="?{% url_replace page=page_obj.next_page_number %}">&gt;</a>
+						</li>
+					{% endif %}
+			    </ul>
+			</div>
+		</div>
+	 </div>
+</div>
+<div class="col-xl-4 sidebar ftco-animate bg-light pt-5">
+	            <div class="sidebar-box pt-md-4">
+	              <form action="" method="get" class="search-form">
+	                <div class="form-group">
+	                  <span class="icon icon-search"></span>
+	                  <input name="heading__icontains" id="id_heading__icontains" type="text" class="form-control" placeholder="Заголовок">
+	                </div>
+	              </form>
+	            </div>
+	            <div class="sidebar-box ftco-animate">
+	            	<h3 class="sidebar-heading">Категория: {{ category }}</h3>
+	              <ul class="categories">
+					{% for i in top5cat %}
+                      {% if i == category %}
+                      {% else %}
+	                    <li><a href="{% url 'category_list' i.pk %}">{{ i }}<span>{{ i.subscribers|length }}</span></a></li>
+                      {% endif %}
+					{% endfor %}
+	              </ul>
+	            </div>
 
-   {# Информация о предыдущих страницах #}
-   {% if page_obj.has_previous %}
-       <a href="?page=1">1</a>
-       {% if page_obj.previous_page_number != 1 %}
-           ...
-           <a href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
-       {% endif %}
-   {% endif %}
+	            <div class="sidebar-box ftco-animate">
+	              <h3 class="sidebar-heading">Популярные Посты</h3>
+					{% for ps in top3posts %}
+	              <div class="block-21 mb-4 d-flex">
+	                <a class="blog-img mr-4" style="background-image: url({{ ps.image.url }});"></a>
+	                <div class="text">
+	                  <h3 class="heading"><a href="{% url 'news_detail' ps.pk %}">{{ ps.heading }}</a></h3>
+	                  <div class="meta">
+	                    <div><a href="#"><span class="icon-calendar"></span>{{ ps.time_create }}</a></div>
+	                    <div><a href="#"><span class="icon-person"></span>{{ ps.author }}</a></div>
+	                    <div><a href="#"><span class="icon-chat"></span>{{ ps.rating_post }}</a></div>
+	                  </div>
+	                </div>
+	              </div>
+					{% endfor %}
 
-   {# Информация о текущей странице #}
-   {{ page_obj.number }}
 
-   {# Информация о следующих страницах #}
-   {% if page_obj.has_next %}
-       <a href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
-       {% if paginator.num_pages != page_obj.next_page_number %}
-           ...
-           <a href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
-       {% endif %}
-   {% endif %}
 
+	            <div class="sidebar-box ftco-animate">
+	            	<h3 class="sidebar-heading"></h3>
+	              <ul class="categories">
+	              	<li><a href="{% url 'news' %}">Новости<span>{{ cntnews }}</span></a></li>
+	                <li><a href="{% url 'art' %}">Статьи<span>{{ cntnews }}</span></a></li>
+	              </ul>
+	            </div>
+
+
+<!--                       {% for category in post.posts_mtm.all %}-->
+<!--                       <a href="{% url 'category_list' category.id %}">{{ category.name_category }}</a>-->
+<!--                       {% endfor %}-->
 {% endblock content %}
+
+
+<!--           {% for post in category_news_list %}-->
+<!--           <tr>-->
+<!--               <td><h5><a href="{{ post.id }}">{{ post.id }}</a></h5></td>-->
+<!--               <td><h5>{{ post.heading|censor }}</h5></td>-->
+<!--               <td><h5>{{ post.time_create }}</h5></td>-->
+<!--               <td><h5>{{ post.text|truncatechars:20|censor }}</h5></td>-->
+<!--               <td><h5>{{ post.author }}</h5></td>-->
+<!--               <td>-->
+<!--                   <h5>-->
+<!--                       {% for category in post.posts_mtm.all %}-->
+<!--                       <a href="{% url 'category_list' category.id %}">{{ category.name_category }}</a>-->
+<!--                       {% endfor %}-->
+<!--                   </h5>-->
+<!--               </td>-->
+<!--               <td><h5>{{ post.get_post_type_display }}</h5></td>-->
+<!--           </tr>-->
+<!--           {% endfor %}-->
+
+<!--       </table>-->
+
+
+
