@@ -5,6 +5,7 @@ from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.core.cache import cache
 
+
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     username = models.CharField(max_length=20, unique=True)
@@ -23,12 +24,14 @@ class Author(models.Model):
         self.rating = post_rating * 3 + comment_rating + posts_comment_rating
         self.save()
 
+
 class Category(models.Model):
     name_category = models.CharField(max_length=100, unique = True)
     subscribers = models.ManyToManyField(User, related_name='categories')
 
     def __str__(self):
         return self.name_category
+
 
 class Post(models.Model):
     article = 'AR'
@@ -49,7 +52,6 @@ class Post(models.Model):
 
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name ='posts')
     posts_mtm = models.ManyToManyField(Category, through = 'PostCategory')
-
 
     def like(self):
         self.rating_post += 1
@@ -72,9 +74,11 @@ class Post(models.Model):
         super().save(*args, **kwargs)  # сначала вызываем метод родителя, чтобы объект сохранился
         cache.delete(f'product-{self.pk}')  # затем удаляем его из кэша, чтобы сбросить его
 
+
 class PostCategory(models.Model):
     post = models.ForeignKey(Post, on_delete = models.CASCADE)
     category = models.ForeignKey(Category, on_delete = models.CASCADE)
+
 
 class Comment(models.Model):
     comment = models.CharField(max_length=255)
