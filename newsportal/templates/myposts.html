@@ -1,0 +1,46 @@
+{% extends 'flatpages/default.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+	<div id="colorlib-main">
+			<section class="ftco-section">
+				<div class="container">
+					<div class="row px-md-4">
+                        {% for i in myposts %}
+						<div class="col-md-12">
+							<div class="blog-entry ftco-animate d-md-flex fadeInUp ftco-animated">
+								<a href="{% url 'news_detail' i.pk %}" class="img img-2" style="background-image: url({{ i.image.url }})"></a>
+								<div class="text text-2 pl-md-4">
+		              <h3 class="mb-2"><a href="{% url 'news_detail' i.pk %}"><ya-tr-span data-index="9-0" data-translated="true" data-source-lang="en" data-target-lang="ru" data-ch="0" data-type="trSpan" style="visibility: inherit !important;">{{ i.heading }}</ya-tr-span></a></h3>
+		              <div class="meta-wrap">
+										<p class="meta">
+		              		<span><i class="icon-calendar mr-2"></i><ya-tr-span data-index="10-0" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value="June 28, 2019" data-translation="28 июня 2019 г." data-ch="0" data-type="trSpan" style="visibility: inherit !important;">{{ i.time_create }}</ya-tr-span></span>
+		              		<span><a href="{% url 'news_detail' i.pk %}"><i class="icon-folder-o mr-2"></i><ya-tr-span data-index="10-0" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value="Travel" data-translation="Путешествия" data-ch="0" data-type="trSpan" style="visibility: inherit !important;">{{ i.get_posts_mtm_display }}</ya-tr-span></a></span>
+		              		<span><i class="icon-comment2 mr-2"></i><ya-tr-span data-index="10-0" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value="5 Comment" data-translation="5 комментариев" data-ch="0" data-type="trSpan" style="visibility: inherit !important;">{{ i.get_post_type_display }}</ya-tr-span></span>
+		              	</p>
+	              	</div>
+		              <p class="mb-4"><ya-tr-span data-index="11-0" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value="A small river named Duden flows by their place and supplies it with the necessary regelialia." data-translation="Небольшая река под названием Дуден протекает неподалёку от их дома и снабжает его необходимой водой." data-ch="0" data-type="trSpan" style="visibility: inherit !important;">{{ i.text|truncatechars:65 }}</ya-tr-span></p>
+									<p style="display: flex; gap: 10%;">
+							  <a href="{% url 'news_edit' i.pk %}" class="btn-custom"><ya-tr-span data-index="12-0" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value="Read More " data-translation="Читать дальше " data-ch="0" data-type="trSpan" style="visibility: inherit !important;">Редактировать</ya-tr-span></a>
+								<a href="javascript:void()" onclick="delete_question{{i.id}}()">Удалить</a>
+							  <form id="delete_form{{i.id}}" action="{% url 'news_delete' i.id %}" method="post">{% csrf_token %}</form>
+								  <script>
+									  function delete_question{{i.id}}() {
+										  if (confirm("Вы уверены")) {
+											  document.getElementById('delete_form{{i.id}}').submit()
+										  }
+									  }
+									  </script>
+						  			</p>
+								</div>
+							</div>
+						</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+    </div>
+{% endblock %}
+
+

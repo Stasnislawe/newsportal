@@ -1,7 +1,7 @@
 from django.urls import path, include
 # Импортируем созданное нами представление
 from .views import PostsList, PostDetail, PostSearch, PostCreate, NewsDelete, NewsEdit, subscribe, \
-   unsubscribe, CategoryListView, OnlyNews, OnlyArt, comment, MyPosts
+   unsubscribe, CategoryListView, OnlyNews, OnlyArt, comment, MyPosts, like, dislike
 from django.views.decorators.cache import cache_page
 
 urlpatterns = [
@@ -12,6 +12,8 @@ urlpatterns = [
    path('comment_add/<int:pk>', comment, name='comment_add'),
    path('news/', OnlyNews.as_view(), name='news'),
    path('myposts/', MyPosts.as_view(), name='myviews'),
+   path('like/<int:pk>', like, name='like'),
+   path('dislike/<int:pk>', dislike, name='dislike'),
    path('art/', OnlyArt.as_view(), name='art'),
    path('create/', PostCreate.as_view(), name='news_create'),
    path('<int:pk>/delete/', NewsDelete.as_view(), name ='news_delete'),

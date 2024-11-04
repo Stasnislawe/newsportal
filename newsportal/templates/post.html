@@ -12,6 +12,7 @@ Post
 
 {% block content %}
 <div class="col-lg-8 px-md-5 py-5">
+
 	    				<div class="row pt-md-4">
 	    					<h1 class="mb-3">{{ post.heading }}</h1>
 		            <p>{{ post.text }}</p>
@@ -38,8 +39,13 @@ Post
 		                <p>{{ post.author.description }}</p>
 		              </div>
 		            </div>
-
-
+					<div class="tag-widget post-tag-container mb-5 mt-5">
+						<p> Рейтинг поста: {{ post.rating_post }}</p>
+		              <div class="tagcloud">
+		                <a href="{% url 'like' post.pk %}" class="tag-cloud-link">Нравится 👍</a>
+		                <a href="{% url 'dislike' post.pk %}" class="tag-cloud-link">Не нравится 👎</a>
+		              </div>
+					</div>
 		            <div class="pt-5 mt-5">
 		              <h3 class="mb-5 font-weight-bold">Комментарии ({{ comments|length }})</h3>
 		              <ul class="comment-list">

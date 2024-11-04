@@ -10,9 +10,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.decorators import login_required
-from django.utils.translation import gettext as _
-from .tasks import new_post_added
-from sign.views import upgrade_me
+
 
 
 class PostsList(ListView):
@@ -72,7 +70,21 @@ class OnlyArt(ListView):
         return self.filterset.qs
 
 
-class PostDetail(DetailView):
+@login_required()
+def like(request, pk):
+    post = Post.objects.get(pk=pk)
+    post.like()
+    return redirect(post.get_absolute_url())
+
+
+@login_required()
+def dislike(request, pk):
+    post = Post.objects.get(pk=pk)
+    post.dislike()
+    return redirect(post.get_absolute_url())
+
+
+class PostDetail(LoginRequiredMixin, DetailView):
     # Модель всё та же, но мы хотим получать информацию по отдельному товару
     model = Post
     ordering = 'heading'

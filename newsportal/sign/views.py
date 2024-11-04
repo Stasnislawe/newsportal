@@ -42,9 +42,11 @@ class IndexView(LoginRequiredMixin, TemplateView):
     template_name = 'index.html'
 
     def get_context_data(self, **kwargs):
+        self.req_author = Author.objects.get(user__username=self.request.user)
+        self.req_author.update_rating()
         kwargs['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
         kwargs['count_mynews'] = Post.objects.filter(author__user__username=self.request.user)
-        kwargs['rating'] = Author.objects.filter(user__username=self.request.user)
+        kwargs['rating'] = self.req_author
         return super().get_context_data(**kwargs)
 
 

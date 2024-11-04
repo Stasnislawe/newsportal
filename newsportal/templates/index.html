@@ -8,6 +8,13 @@
       <div class="container">
         <div class="row d-flex mb-5 contact-info">
           <div class="col-md-12 mb-4">
+              {% if messages %}
+					<div class="alert alert-success">
+						{% for m in messages %}
+							{{m}}
+						{% endfor %}
+					</div>
+					{% endif %}
             <h2 class="h3">Личный кабинет</h2>
           </div>
           <div class="w-100"></div>
@@ -25,9 +32,7 @@
           <div class="col-lg-6 col-xl-3 d-flex mb-4">
           	<div class="info bg-light p-4">
 	            <p><span>Рейтинг:</span> <a href="mailto:info@yoursite.com">
-                  {% for i in rating %}
-                    {{ i.rating }}
-                  {% endfor %}
+                    {{ rating.rating }}
                 </a></p>
 	          </div>
           </div>
