@@ -2,15 +2,28 @@ from django import forms
 from django.core.exceptions import ValidationError
 from .models import Post, Comment, Author
 from datetime import date, datetime, timedelta
+from crispy_forms.helper import FormHelper
 
 
 class AuthorForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
+        # self.helper = FormHelper()
+        # self.helper.form_id = 'id-authorForm'
+        # self.helper.form_class = 'form-horizontal'
+        # self.helper.label_class = 'col-lg-3'
+        # self.helper.field_class = 'col-lg-10'
+        # self.helper.form_method = 'post'
+        # self.helper.form_action = 'submit_survey'
+
+        self.request = kwargs.pop("request", None)
+
         super(AuthorForm, self).__init__(*args, **kwargs)
+
         self.fields['photo'].label = 'Аватар'
         self.fields['username'].label = 'Никнейм'
-        self.fields['description'].labe = 'О себе'
+        self.fields['description'].label = 'О себе'
+
 
     class Meta:
         model = Author
@@ -19,6 +32,30 @@ class AuthorForm(forms.ModelForm):
                   'username',
                   'description',
                   ]
+
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get("username")
+        desc = cleaned_data.get("description")
+        request = self.request
+
+
+        if username is not None and len(username) > 20:
+            raise ValidationError(
+                 "Имя пользователя не может быть больше 20 символов или быть пустым."
+            )
+        if username == desc:
+            raise ValidationError(
+                "Имя пользователя не должно быть идентичным описанию.")
+        if desc[0].islower():
+            raise ValidationError(
+                "Описание должно начинаться с заглавной буквы.")
+        if len(desc) < 30:
+            raise ValidationError(
+                "Минимальное количество символовов описания - 30")
+
+
+        return cleaned_data
 
 
 class PostForm(forms.ModelForm):

@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.contrib.flatpages',
+    'crispy_forms',
+    'crispy_bootstrap4',
     'django.forms',
     'NewsPortal',
     'django_filters',
@@ -52,6 +54,9 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'django_celery_beat',
 ]
+
+# Для стилизации форм джанго
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 SITE_ID = 1
 
