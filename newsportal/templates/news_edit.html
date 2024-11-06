@@ -1,5 +1,7 @@
 {% extends 'flatpages/default.html' %}
 {% load static %}
+{% load crispy_forms_tags %}
+
 
 {% block content %}
 	<div id="colorlib-main">
@@ -13,37 +15,38 @@
           <div class="">
               <form method="post" class="" enctype="multipart/form-data">
                   {% csrf_token %}
-                    <label for="id_image">Изображение</label>
-	                <input type="file" name="image" multiple id="id_image" class="form-group">
-	              <div class="form-group">
-                      <label for="id_heading">Заголовок</label>
-                      <textarea type="text" cols="60" rows="1" name="heading" id="id_heading" class="form-control" placeholder="Заголовок"></textarea>
-	              </div>
-	              <div class="form-group">
-                      <label for="id_text">Текст до изображения</label>
-                      <textarea name="text" id="id_text" rows="7" class="form-control" placeholder="Текст"></textarea>
-	              </div>
+                  {{ form|crispy }}
+<!--                    <label for="id_image">Изображение</label>-->
+<!--	                <input type="file" name="image" multiple id="id_image" class="form-group">-->
+<!--	              <div class="form-group">-->
+<!--                      <label for="id_heading">Заголовок</label>-->
+<!--                      <textarea type="text" cols="60" rows="1" name="heading" id="id_heading" class="form-control" placeholder="Заголовок"></textarea>-->
+<!--	              </div>-->
+<!--	              <div class="form-group">-->
+<!--                      <label for="id_text">Текст до изображения</label>-->
+<!--                      <textarea name="text" id="id_text" rows="7" class="form-control" placeholder="Текст"></textarea>-->
+<!--	              </div>-->
+<!--                  <div class="form-group">-->
+<!--                      <label for="id_text2">Текст после изображения</label>-->
+<!--	                <textarea rows="7" name="text2" id="id_text2" class="form-control" placeholder="Текст"></textarea>-->
+<!--	              </div>-->
+<!--                  <div class="form-group">-->
+<!--                      <label for="id_post_type">Тип поста</label>-->
+<!--                      <select name="post_type" id="id_post_type" class="form-control" required multiple>-->
+<!--                          <option value="AR">Статья</option>-->
+<!--                          <option value="NW">Новость</option>-->
+<!--                      </select>-->
+<!--                  </div>-->
+<!--                  <div class="form-group">-->
+<!--                      <label for="id_posts_mtm">Категория</label>-->
+<!--                      <select name="posts_mtm" id="id_posts_mtm" class="form-control" required multiple>-->
+<!--                          {% for i in cats %}-->
+<!--                            <option value="{{ i.pk }}">{{ i.name_category }}</option>-->
+<!--                          {% endfor %}-->
+<!--                      </select>-->
+<!--	              </div>-->
                   <div class="form-group">
-                      <label for="id_text2">Текст после изображения</label>
-	                <textarea rows="7" name="text2" id="id_text2" class="form-control" placeholder="Текст"></textarea>
-	              </div>
-                  <div class="form-group">
-                      <label for="id_post_type">Тип поста</label>
-                      <select name="post_type" id="id_post_type" class="form-control" required multiple>
-                          <option value="AR">Статья</option>
-                          <option value="NW">Новость</option>
-                      </select>
-                  </div>
-                  <div class="form-group">
-                      <label for="id_posts_mtm">Категория</label>
-                      <select name="posts_mtm" id="id_posts_mtm" class="form-control" required multiple>
-                          {% for i in cats %}
-                            <option value="{{ i.pk }}">{{ i.name_category }}</option>
-                          {% endfor %}
-                      </select>
-	              </div>
-                  <div class="form-group">
-	                <input type="submit" value="Опубликовать" class="btn btn-primary py-3 px-5">
+	                <input type="submit" value="Сохранить изменения" class="btn btn-primary py-3 px-5">
 				  </div>
               </form>
           </div>

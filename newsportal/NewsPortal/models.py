@@ -42,16 +42,16 @@ class Post(models.Model):
         (news, 'Новость'),
     ]
 
-    post_type = models.CharField(max_length = 2, choices = POS, default='NW')
+    post_type = models.CharField(max_length=2, choices=POS, default='NW')
     image = models.ImageField(upload_to='images/%Y/%m/%d/', default='nophoto.jpg')
-    time_create = models.DateTimeField(auto_now_add = True)
-    heading = models.CharField(max_length = 255, default = 'Название отсутсвует')
+    time_create = models.DateTimeField(auto_now_add=True)
+    heading = models.CharField(max_length=255, default='Название отсутсвует')
     text = models.TextField(verbose_name='Текст до изображения')
     text2 = models.TextField(verbose_name='Текст после изображения', blank=True)
     rating_post = models.IntegerField(default=0)
 
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name ='posts')
-    posts_mtm = models.ManyToManyField(Category, through = 'PostCategory')
+    posts_mtm = models.ManyToManyField(Category, through='PostCategory')
 
     def like(self):
         self.rating_post += 1
