@@ -24,7 +24,7 @@ Posts
 						</p>
 					</div>
 					<p class="mb-4">{{ post.text|truncatechars:95 }}</p>
-					<p><a href="{% url 'news_detail' post.id %}" class="btn-custom">Read More</a></p>
+					<p><a href="{% url 'news_detail' post.id %}" class="btn-custom">Читать дальше</a></p>
 				</div>
 			</div>
 		</div>
@@ -72,7 +72,7 @@ Posts
 	            	<h3 class="sidebar-heading">Категории</h3>
 	              <ul class="categories">
 					{% for i in top5cat %}
-	                <li><a href="{% url 'category_list' i.pk %}">{{ i }}<span>{{ i.subscribers|length }}</span></a></li>
+	                <li><a href="{% url 'category_list' i.pk %}">{{ i }}<span>{{ i.subscribers.all|length }}</span></a></li>
 					{% endfor %}
 	              </ul>
 	            </div>

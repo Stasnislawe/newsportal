@@ -52,7 +52,7 @@
             {% if not is_not_author %}
                 <img class="col-lg-6 d-flex" src="{{ rating.photo.url }}">
             {% else %}
-                <img class="col-lg-6 d-flex" src="{% static 'images/author.jpg' %}">
+                <img class="col-lg-6 d-flex" src="{% static 'images/nophoto.jpg' %}">
             {% endif %}
         </div>
         <div><button><a class="nav-link" href="/sign/logout/">Выйти</a></button></div>

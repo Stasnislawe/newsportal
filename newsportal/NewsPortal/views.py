@@ -23,6 +23,7 @@ class PostsList(ListView):
     def get_context_data(self, **kwargs):
         kwargs['top5cat'] = Category.objects.annotate(Count('subscribers')).order_by('-name_category')[:5]
         kwargs['top3posts'] = Post.objects.annotate(Count('rating_post')).order_by('-rating_post')[:3]
+        kwargs['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
         kwargs['filterset'] = self.filterset
         return super().get_context_data(**kwargs)
 
@@ -42,7 +43,9 @@ class OnlyNews(ListView):
     def get_context_data(self, **kwargs):
         kwargs['news'] = Post.objects.filter(post_type='NW').all()
         kwargs['cntnews'] = Post.objects.filter(post_type='NW').count()
+        kwargs['top5cat'] = Category.objects.annotate(Count('subscribers')).order_by('-name_category')[:5]
         kwargs['filterset'] = self.filterset
+        kwargs['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
         return super().get_context_data(**kwargs)
 
     def get_queryset(self):
@@ -60,8 +63,10 @@ class OnlyArt(ListView):
 
     def get_context_data(self, **kwargs):
         kwargs['news'] = Post.objects.filter(post_type='AR').all()
+        kwargs['top5cat'] = Category.objects.annotate(Count('subscribers')).order_by('-name_category')[:5]
         kwargs['cntnews'] = Post.objects.filter(post_type='AR').count()
         kwargs['filterset'] = self.filterset
+        kwargs['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
         return super().get_context_data(**kwargs)
 
     def get_queryset(self):
@@ -97,6 +102,7 @@ class PostDetail(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         kwargs['comments'] = Comment.objects.filter(post_id=self.object.pk).all()
         kwargs['form'] = self.comment_form
+        kwargs['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
         return super().get_context_data(**kwargs)
 
     def get_object(self, *args, **kwargs):
