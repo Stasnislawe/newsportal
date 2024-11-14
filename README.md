@@ -1,3 +1,3 @@
 <h1 align="center">Новостной портал</h1>
 <p>Пользователь может зарегестрироваться на сайте, после чего, в личном кабинете заполнить форму, для того что бы получить роль автора.</p>
-<img src="">![image](https://github.com/user-attachments/assets/8ce843b2-91be-437b-933c-0d558defa8ca)
+<img src="![image](https://github.com/user-attachments/assets/8ce843b2-91be-437b-933c-0d558defa8ca)">
