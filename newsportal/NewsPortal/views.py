@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
@@ -12,20 +13,22 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.decorators import login_required
 
 
-
 class PostsList(ListView):
     model = Post
     ordering = '-time_create'
     template_name = 'posts.html'
-    context_object_name = 'posts'
+    context_object_name = 'context_obj_posts'
     paginate_by = 10
 
     def get_context_data(self, **kwargs):
-        kwargs['top5cat'] = Category.objects.annotate(Count('subscribers')).order_by('-name_category')[:5]
-        kwargs['top3posts'] = Post.objects.annotate(Count('rating_post')).order_by('-rating_post')[:3]
-        kwargs['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
-        kwargs['filterset'] = self.filterset
-        return super().get_context_data(**kwargs)
+        context = super(PostsList, self).get_context_data(**kwargs)
+        pagin = Paginator(Post.objects.filter(draft=True).all().order_by('-time_create'), self.paginate_by)
+        context['posts'] = pagin.page(context['page_obj'].number)
+        context['top5cat'] = Category.objects.annotate(Count('subscribers')).order_by('-name_category')[:5]
+        context['top3posts'] = Post.objects.annotate(Count('rating_post')).order_by('-rating_post')[:3]
+        context['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
+        context['filterset'] = self.filterset
+        return context
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -41,7 +44,7 @@ class OnlyNews(ListView):
     paginate_by = 10
 
     def get_context_data(self, **kwargs):
-        kwargs['news'] = Post.objects.filter(post_type='NW').all()
+        kwargs['news'] = Post.objects.filter(post_type='NW', draft=True).all()
         kwargs['cntnews'] = Post.objects.filter(post_type='NW').count()
         kwargs['top5cat'] = Category.objects.annotate(Count('subscribers')).order_by('-name_category')[:5]
         kwargs['filterset'] = self.filterset
@@ -62,7 +65,7 @@ class OnlyArt(ListView):
     paginate_by = 10
 
     def get_context_data(self, **kwargs):
-        kwargs['news'] = Post.objects.filter(post_type='AR').all()
+        kwargs['news'] = Post.objects.filter(post_type='AR', draft=True).all()
         kwargs['top5cat'] = Category.objects.annotate(Count('subscribers')).order_by('-name_category')[:5]
         kwargs['cntnews'] = Post.objects.filter(post_type='AR').count()
         kwargs['filterset'] = self.filterset
@@ -98,7 +101,6 @@ class PostDetail(LoginRequiredMixin, DetailView):
     # Название объекта, в котором будет выбранный пользователем продукт
     context_object_name = 'post'
 
-
     def get_context_data(self, **kwargs):
         kwargs['comments'] = Comment.objects.filter(post_id=self.object.pk).all()
         kwargs['form'] = self.comment_form
@@ -112,6 +114,12 @@ class PostDetail(LoginRequiredMixin, DetailView):
             cache.set(f'product-{self.kwargs["pk"]}', obj)
 
         return obj
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset()
+        if self.kwargs["author"] != Author.objects.get(user=self.request.user):
+            return self.handle_no_permission()
+        return queryset
 
 
 class PostSearch(ListView):
@@ -140,7 +148,6 @@ class MyPosts(PermissionRequiredMixin, ListView):
         req_user = Author.objects.get(user=self.request.user)
         kwargs['myposts'] = Post.objects.filter(author=req_user).order_by('-time_create')
         return super().get_context_data(**kwargs)
-
 
 
 class PostCreate(PermissionRequiredMixin, CreateView):

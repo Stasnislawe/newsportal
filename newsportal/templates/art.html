@@ -10,7 +10,7 @@ Posts
 {% block content %}
 <div class="col-xl-8 py-5 px-md-5">
 	<div class="row pt-md-4">
-{% for post in oart %}
+{% for post in news %}
 		<div class="col-md-12">
 			<div class="blog-entry ftco-animate d-md-flex">
 				<a href="{% url 'news_detail' post.id %}" class="img img-2" style="background-image: url({{ post.image.url }});"></a>

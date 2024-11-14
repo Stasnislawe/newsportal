@@ -69,6 +69,7 @@ class PostForm(forms.ModelForm):
         self.fields['posts_mtm'].empty_label = None
         self.fields['posts_mtm'].label = 'Категория'
         self.fields['post_type'].label = 'Тип поста'
+        self.fields['draft'].label = 'Опубликовать'
 
     class Meta:
         model = Post
@@ -78,14 +79,13 @@ class PostForm(forms.ModelForm):
                   'text',
                   'text2',
                   'posts_mtm',
-                  'post_type']
-
+                  'post_type',
+                  'draft']
 
     def clean(self):
         cleaned_data = super().clean()
         text = cleaned_data.get("text")
         heading = cleaned_data.get("heading")
-        author = cleaned_data.get("author")
 
 
         if heading is not None and len(heading) > 100:

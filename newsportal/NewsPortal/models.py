@@ -49,6 +49,7 @@ class Post(models.Model):
     text = models.TextField(verbose_name='Текст до изображения')
     text2 = models.TextField(verbose_name='Текст после изображения', blank=True)
     rating_post = models.IntegerField(default=0)
+    draft = models.BooleanField(verbose_name='Опубликовать', default=True)
 
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name ='posts')
     posts_mtm = models.ManyToManyField(Category, through='PostCategory')
@@ -76,8 +77,8 @@ class Post(models.Model):
 
 
 class PostCategory(models.Model):
-    post = models.ForeignKey(Post, on_delete = models.CASCADE)
-    category = models.ForeignKey(Category, on_delete = models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
 
 class Comment(models.Model):
