@@ -15,6 +15,7 @@ Post
 
 	    				<div class="row pt-md-4">
 	    					<h1 class="mb-3">{{ post.heading }}</h1>
+							{% for i in cats %}<p>{{i}}</p>{% endfor %}
 		            <p>{{ post.text }}</p>
 		            <p>
 		              <img src="{{ post.image.url }}" alt="" class="img-fluid">

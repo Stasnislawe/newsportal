@@ -82,7 +82,7 @@ Posts
 					{% for i in top5cat %}
                       {% if i == category %}
                       {% else %}
-	                    <li><a href="{% url 'category_list' i.pk %}">{{ i }}<span>{{ i.subscribers|length }}</span></a></li>
+	                    <li><a href="{% url 'category_list' i.pk %}">{{ i }}<span>{{ i.subscribers.all|length }}</span></a></li>
                       {% endif %}
 					{% endfor %}
 	              </ul>

@@ -188,12 +188,13 @@ class CategoryListView(PostsList):
     def get_queryset(self):
         queryset = super().get_queryset()
         self.category = get_object_or_404(Category, id=self.kwargs['pk'])
-        queryset = Post.objects.filter(posts_mtm=self.category, draft=True).order_by('-time_create')
+        queryset = Post.objects.filter(posts_mtm=self.category, draft=True).order_by('-time_create').distinct()
         self.filterset = SearchFilter(self.request.GET, queryset)
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['top5cat'] = Category.objects.filter(postcategory__post__draft=True).annotate(Count('subscribers')).order_by('-name_category')[:5]
         context['is_not_subscriber'] = self.request.user not in self.category.subscribers.all()
         context['if_subscriber'] = self.request.user in self.category.subscribers.all()
         context['category'] = self.category
