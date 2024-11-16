@@ -37,8 +37,6 @@ class AuthorForm(forms.ModelForm):
         cleaned_data = super().clean()
         username = cleaned_data.get("username")
         desc = cleaned_data.get("description")
-        request = self.request
-
 
         if username is not None and len(username) > 20:
             raise ValidationError(

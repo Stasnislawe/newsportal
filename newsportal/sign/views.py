@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.http import request
 from django.urls import reverse_lazy
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.shortcuts import redirect
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
@@ -63,4 +63,22 @@ class CreateAuthor(CreateView):
         self.object.user = self.request.user
         self.object.save()
         upgrade_me(self.request)
+        return super().form_valid(form)
+
+
+class EditAuthor(UpdateView):
+    model = Author
+    form_class = AuthorForm
+    success_url = reverse_lazy('index')
+    template_name = 'authoredit.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['author'] = Author.objects.filter(user=self.request.user)
+        return context
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.user = self.request.user
+        self.object.save()
         return super().form_valid(form)

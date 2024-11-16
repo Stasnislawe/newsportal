@@ -7,8 +7,8 @@ from django.core.cache import cache
 
 
 class Author(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    username = models.CharField(max_length=20, unique=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='user_admin')
+    username = models.CharField(max_length=20)
     description = models.CharField(max_length=250, default='Пользователь еще не добавил описание своего профиля')
     rating = models.IntegerField(default=0)
     photo = models.ImageField(upload_to='authors/', default='nophoto.jpg')

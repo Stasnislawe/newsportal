@@ -20,7 +20,7 @@
           <div class="w-100"></div>
           <div class="col-lg-6 col-xl-3 d-flex mb-4">
           	<div class="info bg-light p-4">
-	            <p><span>Пользователь: </span> {{ request.user }}</p>
+	            <p><span>Пользователь: </span> {{ rating.username }}</p>
 	          </div>
           </div>
             {% if not is_not_author %}
@@ -31,26 +31,33 @@
           </div>
           <div class="col-lg-6 col-xl-3 d-flex mb-4">
           	<div class="info bg-light p-4">
-	            <p><span>Рейтинг:</span> <a href="mailto:info@yoursite.com">
+	            <p><span>Рейтинг:</span>
                     {{ rating.rating }}
-                </a></p>
+                </p>
 	          </div>
           </div>
           <div class="col-lg-6 col-xl-3 d-flex mb-4">
           	<div class="info bg-light p-4">
-	            <p><span>Роль:</span> <a href="#">Author</a></p>
+	            <p><span>Роль:</span> <a href="#">Автор</a></p>
 	          </div>
           </div>
+
             {% endif %}
         </div>
         <div class="row block-9">
           <div class="col-lg-6 d-flex">
               {% if is_not_author %}
               {% include 'authorcreate.html' %}
+              {% else %}
+              {% include 'authoredit.html' %}
               {% endif %}
           </div>
             {% if not is_not_author %}
-                <img class="col-lg-6 d-flex" src="{{ rating.photo.url }}">
+                <div style="width:50%; display: flex; flex-wrap: wrap;">
+                    <img class="d-flex" style="width: 100%;" src="{{ rating.photo.url }}">
+                                        <div>{{ rating.description }}</div>
+
+                </div>
             {% else %}
                 <img class="col-lg-6 d-flex" src="{% static 'images/nophoto.jpg' %}">
             {% endif %}
