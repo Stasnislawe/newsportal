@@ -24,7 +24,7 @@ class PostsList(ListView):
         context = super(PostsList, self).get_context_data(**kwargs)
         pagin = Paginator(Post.objects.filter(draft=True).all().order_by('-time_create'), self.paginate_by)
         context['posts'] = pagin.page(context['page_obj'].number)
-        context['top5cat'] = Category.objects.annotate(Count('subscribers')).order_by('-name_category')[:5]
+        context['top5cat'] = Category.objects.filter(postcategory__post__draft=True).annotate(Count('subscribers')).order_by('-name_category')[:5]
         context['top3posts'] = Post.objects.annotate(Count('rating_post')).order_by('-rating_post')[:3]
         context['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
         context['filterset'] = self.filterset
@@ -115,29 +115,6 @@ class PostDetail(LoginRequiredMixin, DetailView):
 
         return obj
 
-    def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset()
-        if self.kwargs["author"] != Author.objects.get(user=self.request.user):
-            return self.handle_no_permission()
-        return queryset
-
-
-class PostSearch(ListView):
-    model = Post
-    ordering = '-time_create'
-    template_name = 'posts_search.html'
-    context_object_name = 'post_search'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['filterset'] = self.filterset
-        return context
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        self.filterset = SearchFilter(self.request.GET, queryset)
-        return self.filterset.qs
-
 
 class MyPosts(PermissionRequiredMixin, ListView):
     permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
@@ -211,7 +188,7 @@ class CategoryListView(PostsList):
     def get_queryset(self):
         queryset = super().get_queryset()
         self.category = get_object_or_404(Category, id=self.kwargs['pk'])
-        queryset = Post.objects.filter(posts_mtm=self.category).order_by('-time_create')
+        queryset = Post.objects.filter(posts_mtm=self.category, draft=True).order_by('-time_create')
         self.filterset = SearchFilter(self.request.GET, queryset)
         return queryset
 
