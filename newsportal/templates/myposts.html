@@ -16,7 +16,8 @@
 		              <div class="meta-wrap">
 										<p class="meta">
 		              		<span><i class="icon-calendar mr-2"></i><ya-tr-span data-index="10-0" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value="June 28, 2019" data-translation="28 июня 2019 г." data-ch="0" data-type="trSpan" style="visibility: inherit !important;">{{ i.time_create }}</ya-tr-span></span>
-		              		<span><a href="{% url 'news_detail' i.pk %}"><i class="icon-folder-o mr-2"></i><ya-tr-span data-index="10-0" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value="Travel" data-translation="Путешествия" data-ch="0" data-type="trSpan" style="visibility: inherit !important;">{{ i.get_posts_mtm_display }}</ya-tr-span></a></span>
+		              		<a href="{% url 'news_detail' i.pk %}"><i class="icon-folder-o mr-2"></i><ya-tr-span data-index="10-0" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value="Travel" data-translation="Путешествия" data-ch="0" data-type="trSpan" style="visibility: inherit !important;">Рейтинг: {{ i.rating_post }}</ya-tr-span></a>
+							<a href="{% url 'news_detail' i.pk %}"><i class="icon-folder-o mr-2"></i><ya-tr-span data-index="10-0" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value="Travel" data-translation="Путешествия" data-ch="0" data-type="trSpan" style="visibility: inherit !important;">Комментарии: {{ i.commentpost.all|length }}</ya-tr-span></a>
 		              		<span><i class="icon-comment2 mr-2"></i><ya-tr-span data-index="10-0" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value="5 Comment" data-translation="5 комментариев" data-ch="0" data-type="trSpan" style="visibility: inherit !important;">{{ i.get_post_type_display }}</ya-tr-span></span>
 		              	</p>
 	              	</div>
