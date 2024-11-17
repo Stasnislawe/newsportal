@@ -112,8 +112,12 @@ class PostDetail(LoginRequiredMixin, DetailView):
         if not obj:
             obj = super().get_object(queryset=self.queryset)
             cache.set(f'product-{self.kwargs["pk"]}', obj)
+        if (obj.author != self.request.user.user_admin) and (obj.draft == False):
+            return self.handle_no_permission()
 
         return obj
+
+
 
 
 class MyPosts(PermissionRequiredMixin, ListView):

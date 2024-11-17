@@ -19,7 +19,7 @@ class Author(models.Model):
     def update_rating(self):
         post_rating = self.posts.aggregate(pr=Coalesce(Sum('rating_post'), 0)).get('pr')
         comment_rating = self.user.comments.aggregate(cr=Coalesce(Sum('rating_comment'), 0)).get('cr')
-        posts_comment_rating = self.posts.aggregate(pcr=Coalesce(Sum('comment__rating_comment'), 0)).get('pcr')
+        posts_comment_rating = self.posts.aggregate(pcr=Coalesce(Sum('commentpost__rating_comment'), 0)).get('pcr')
 
         self.rating = post_rating * 3 + comment_rating + posts_comment_rating
         self.save()
@@ -66,7 +66,7 @@ class Post(models.Model):
         return self.text[0:125] + '...'
 
     def __str__(self):
-        return f'{self.heading} {self.post_type} - {self.author}'
+        return f'{self.pk} - {self.heading} - {self.post_type} - {self.author}'
 
     def get_absolute_url(self):
         return reverse('news_detail', args=[str(self.id)])
@@ -87,7 +87,7 @@ class Comment(models.Model):
     rating_comment = models.IntegerField(default=0)
 
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='commentpost')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name ='comments')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
 
     def like(self):
         self.rating_comment += 1

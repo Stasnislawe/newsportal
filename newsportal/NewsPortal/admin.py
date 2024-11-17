@@ -3,7 +3,7 @@ from .models import Author, Category, Post, Comment, PostCategory
 #from modeltranslation.admin import TranslationAdmin
 
 #class PostAdmin(admin.ModelAdmin):
-#    list_display = ('heading', 'author', 'time_create', 'text')
+#    list_display = ('heading', 'author', 'time_create', 'text', 'id')
 #    list_filter = ('heading', 'author', 'time_create')
 
 #class CategoryAdmin(TranslationAdmin):
