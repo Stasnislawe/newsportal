@@ -108,16 +108,15 @@ class PostDetail(LoginRequiredMixin, DetailView):
         return super().get_context_data(**kwargs)
 
     def get_object(self, *args, **kwargs):
+        current_post = Post.objects.get(id=self.kwargs["pk"])
         obj = cache.get(f'product-{self.kwargs["pk"]}', None)
         if not obj:
             obj = super().get_object(queryset=self.queryset)
             cache.set(f'product-{self.kwargs["pk"]}', obj)
-        if (obj.author != self.request.user.user_admin) and (obj.draft == False):
+        if (current_post.author != self.request.user.user_admin) and (current_post.draft == False):
             return self.handle_no_permission()
 
         return obj
-
-
 
 
 class MyPosts(PermissionRequiredMixin, ListView):
@@ -216,9 +215,16 @@ def comment(request, pk):
         comment.post = post
         comment.user = request.user
         comment.comment = form.cleaned_data['comment']
-        photo = Author.objects.filter(user=comment.user.pk).values('photo')
         comment.save()
 
+    return redirect(post.get_absolute_url())
+
+
+@login_required
+def deletecomment(request, pk):
+    comment = get_object_or_404(Comment, pk=pk)
+    post = Post.objects.get(commentpost__pk=pk)
+    comment.delete()
     return redirect(post.get_absolute_url())
 
 

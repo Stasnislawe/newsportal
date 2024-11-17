@@ -59,6 +59,18 @@ Post
 								<h3>{{ com.user }}</h3>
 								<div class="meta">{{ com.time_create_comment }}</div>
 								<p>{{ com.comment }}</p>
+								  {% if request.user == com.user %}
+<!--								  <a href="{% url 'comment_del' com.pk %}">Удалить комментарий</a>-->
+								  <a href="javascript:void()" onclick="delete_question{{com.pk}}()">Удалить</a>
+								  <form id="delete_form{{com.pk}}" action="{% url 'comment_del' com.pk %}" method="post">{% csrf_token %}</form>
+								  <script>
+									  function delete_question{{com.pk}}() {
+										  if (confirm("Вы уверены")) {
+											  document.getElementById('delete_form{{com.pk}}').submit()
+										  }
+									  }
+									  </script>
+								  {% endif %}
 							  </div>
 							</li>
 						  {% endfor %}
