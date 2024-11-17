@@ -53,7 +53,7 @@ Post
 						  {% for com in comments %}
 							<li class="comment">
 							  <div class="vcard bio">
-								<img src="{% static 'images/nophoto.jpg' %}">
+								<img src="{{ com.user.user_admin.photo.url }}">
 							  </div>
 							  <div class="comment-body">
 								<h3>{{ com.user }}</h3>

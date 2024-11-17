@@ -25,7 +25,7 @@ class PostsList(ListView):
         pagin = Paginator(Post.objects.filter(draft=True).all().order_by('-time_create'), self.paginate_by)
         context['posts'] = pagin.page(context['page_obj'].number)
         context['top5cat'] = Category.objects.filter(postcategory__post__draft=True).annotate(Count('subscribers')).order_by('-name_category')[:5]
-        context['top3posts'] = Post.objects.annotate(Count('rating_post')).order_by('-rating_post')[:3]
+        context['top3posts'] = Post.objects.filter(postcategory__post__draft=True).annotate(Count('rating_post')).order_by('-rating_post')[:3]
         context['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
         context['filterset'] = self.filterset
         return context
