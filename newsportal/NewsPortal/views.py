@@ -1,3 +1,4 @@
+from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db.models import Count
 from django.http import HttpResponseRedirect
@@ -224,7 +225,10 @@ def comment(request, pk):
 def deletecomment(request, pk):
     comment = get_object_or_404(Comment, pk=pk)
     post = Post.objects.get(commentpost__pk=pk)
-    comment.delete()
+    if comment.user == request.user or post.author.user == request.user:
+        comment.delete()
+    else:
+        raise PermissionDenied()
     return redirect(post.get_absolute_url())
 
 

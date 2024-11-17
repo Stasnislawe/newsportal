@@ -98,5 +98,5 @@ class Comment(models.Model):
         self.save()
 
     def __str__(self):
-        return '{} {} {} {} {}'.format(self.comment, self.time_create_comment, self.rating_comment, self.post, self.user)
+        return '{} {} {} {} {} {}'.format(self.pk, self.comment, self.time_create_comment, self.rating_comment, self.post, self.user)
 
