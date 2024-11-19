@@ -4,10 +4,9 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 import datetime
 from .models import Post, Category
-from NP.settings import SITE_URL, DEFAULT_FROM_EMAIL
 
 
-@shared_task
+@shared_task()
 def every_monday_message():
     today = datetime.datetime.now()
     last_week = today - datetime.timedelta(days=7)
@@ -37,6 +36,7 @@ def every_monday_message():
             msg.attach_alternative(html_content, 'text/html')
 
             msg.send()
+
 
 @shared_task
 def new_post_added(pk):

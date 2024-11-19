@@ -192,17 +192,16 @@ DEFAULT_FROM_EMAIL = 'uvedomleniynewsportal@ya.ru'
 
 SITE_URL = 'http://127.0.0.1:8000/'
 
-
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
+CELERY_BROKER_URL = os.getenv('CELERY_URL')
+CELERY_RESULT_BACKEND = os.getenv('CELERY_BACKEND')
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': os.path.join(BASE_DIR, 'cache_files'), # Указываем, куда будем сохранять кэшируемые файлы! Не забываем создать папку cache_files внутри папки с manage.py!
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache', #  'django.core.cache.backends.redis.RedisCache'
+        'LOCATION': os.path.join(BASE_DIR, 'cache_files'),# 'redis//localhost:6379' Указываем, куда будем сохранять кэшируемые файлы!
     }
 }
 

@@ -13,6 +13,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.decorators import login_required
 
+from .tasks import new_post_added
+
 
 class PostsList(ListView):
     model = Post
@@ -144,9 +146,8 @@ class PostCreate(PermissionRequiredMixin, CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.author = Author.objects.get(user=self.request.user)
-        # if self.object.post_type == 'AR':
-        #     self.request.path == '/newsportal/article/create'
         self.object.save()
+        new_post_added.delay(self.object.pk)
         return super().form_valid(form)
 
 
