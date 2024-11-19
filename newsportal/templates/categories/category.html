@@ -10,13 +10,6 @@ Posts
 {% block content %}
 <div class="col-xl-8 py-5 px-md-5">
 	<div class="row pt-md-4">
-		{% if messages %}
-					<div class="alert alert-success">
-						{% for m in message %}
-							{{m}}
-						{% endfor %}
-					</div>
-					{% endif %}
         <div style="width: 100%; display:flex; justify-content: center; padding-bottom: 20px;">
         {% if is_not_subscriber %}
             <p class="text-center"><a href="{% url 'subscribe' category.id %}" class="btn btn-secondary btn-sm">Подписаться на рассылку постов на тему {{ category }}</a></p>

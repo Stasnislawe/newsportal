@@ -45,7 +45,9 @@ Posts
 							<li class="active"><a>{{ p }}</a></li>
 						{% elif p >= page_obj.number|add:-2 and p <= page_obj.number|add:2  %}
 							<li>
+								{% if page_obj.has_next %}
 								<a href="?{% url_replace page=p %}">{{ p }}</a>
+								{% endif %}
 							</li>
 						{% endif %}
 					{% endfor %}

@@ -22,7 +22,7 @@ class PostsList(ListView):
     ordering = '-time_create'
     template_name = 'posts.html'
     context_object_name = 'context_obj_posts'
-    paginate_by = 10
+    paginate_by = 8
 
     def get_context_data(self, **kwargs):
         context = super(PostsList, self).get_context_data(**kwargs)
