@@ -32,6 +32,9 @@ class Category(models.Model):
     def __str__(self):
         return self.name_category
 
+    def get_absolute_url(self):
+        return reverse('category_list', args=[str(self.id)])
+
 
 class Post(models.Model):
     article = 'AR'

@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db.models import Count
@@ -37,6 +38,19 @@ class PostsList(ListView):
         queryset = super().get_queryset()
         self.filterset = SearchFilter(self.request.GET, queryset)
         return self.filterset.qs
+
+
+class CustomSuccessMessageMixin:
+    @property
+    def success_msg(self):
+        return False
+
+    def form_valid(self, form):
+        messages.success(self.request, self.success_msg)
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return '%s?id=%s' % (self.success_url, self.object.id)
 
 
 class OnlyNews(ListView):
@@ -238,9 +252,9 @@ def subscribe(request, pk):
     user = request.user
     category = Category.objects.get(id=pk)
     category.subscribers.add(user)
-
     message = 'Вы успешно подписались на рассылку постов на тему'
-    return render(request, 'categories/category.html', {'category': category, 'message': message})
+
+    return redirect(category.get_absolute_url())
 
 
 @login_required
@@ -250,4 +264,4 @@ def unsubscribe(request, pk):
     category.subscribers.remove(user)
 
     message = 'Вы отписались от рассылок постов на тему'
-    return render(request, 'categories/category.html', {'category': category, 'message': message})
+    return redirect(category.get_absolute_url())
