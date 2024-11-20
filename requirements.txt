@@ -3,7 +3,8 @@ APScheduler==3.10.4
 asgiref==3.7.2
 async-timeout==4.0.3
 billiard==4.2.0
-celery==5.3.6
+celery==5.4.0
+celery-error-emails==0.3
 certifi==2023.11.17
 cffi==1.16.0
 charset-normalizer==3.3.2
@@ -24,11 +25,16 @@ django-crispy-forms==2.3
 django-filter==23.5
 django-modeltranslation==0.13b1
 django-timezone-field==6.1.0
+dnspython==2.7.0
+eventlet==0.38.0
+greenlet==3.1.1
 idna==3.6
 kombu==5.3.5
 oauthlib==3.2.2
 pillow==10.4.0
 prompt-toolkit==3.0.43
+psycopg2==2.9.10
+psycopg2-binary==2.9.9
 pycparser==2.21
 PyJWT==2.8.0
 python-crontab==3.0.0
