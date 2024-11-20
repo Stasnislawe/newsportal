@@ -6,15 +6,11 @@ from django.contrib.auth.models import Group
 
 
 class BaseRegisterForm(UserCreationForm):
-    email = forms.EmailField(label = "Email")
-    first_name = forms.CharField(label = "Имя")
-    last_name = forms.CharField(label = "Фамилия")
+    email = forms.EmailField(label="Email")
 
     class Meta:
         model = User
         fields = ("username",
-                  "first_name",
-                  "last_name",
                   "email",
                   "password1",
                   "password2", )
