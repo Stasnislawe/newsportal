@@ -72,7 +72,7 @@ Posts
 	            	<h3 class="sidebar-heading">Категории</h3>
 	              <ul class="categories">
 					{% for i in top5cat %}
-	                <li><a href="{% url 'category_list' i.pk %}">{{ i }}<span>(6)</span></a></li>
+	                <li><a href="{% url 'category_list' i.pk %}">{{ i }}<span>{{ i.subscribers.all|length }}</span></a></li>
 					{% endfor %}
 	              </ul>
 	            </div>

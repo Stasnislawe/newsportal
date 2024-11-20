@@ -7,6 +7,7 @@
 			<section class="ftco-section">
 				<div class="container">
 					<div class="row px-md-4">
+					{% if myposts %}
                         {% for i in myposts %}
 						<div class="col-md-12">
 							<div class="blog-entry ftco-animate d-md-flex fadeInUp ftco-animated">
@@ -40,6 +41,9 @@
 							</div>
 						</div>
                         {% endfor %}
+					{% else %}
+						<div>Создать свой первый пост - <a href="{% url 'news_create' %}">создать</a></div>
+					{% endif %}
                     </div>
                 </div>
             </section>

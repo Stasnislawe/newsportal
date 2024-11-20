@@ -21,13 +21,14 @@ class PostsList(ListView):
     model = Post
     ordering = '-time_create'
     template_name = 'posts.html'
-    context_object_name = 'context_obj_posts'
+    queryset = Post.objects.filter(draft=True).all().order_by('-time_create')
+    context_object_name = 'posts'
     paginate_by = 8
 
     def get_context_data(self, **kwargs):
         context = super(PostsList, self).get_context_data(**kwargs)
-        pagin = Paginator(Post.objects.filter(draft=True).all().order_by('-time_create'), self.paginate_by)
-        context['posts'] = pagin.page(context['page_obj'].number)
+        # pagin = Paginator(Post.objects.filter(draft=True).all().order_by('-time_create'), self.paginate_by)
+        # context['posts'] = pagin.page(context['page_obj'].number)
         context['top5cat'] = Category.objects.filter(postcategory__post__draft=True).annotate(Count('subscribers')).order_by('-name_category')[:5]
         context['top3posts'] = Post.objects.filter(postcategory__post__draft=True).annotate(Count('rating_post')).order_by('-rating_post')[:3]
         context['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()

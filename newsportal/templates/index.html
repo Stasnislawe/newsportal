@@ -20,7 +20,7 @@
           <div class="w-100"></div>
           <div class="col-lg-6 col-xl-3 d-flex mb-4">
           	<div class="info bg-light p-4">
-	            <p><span>Пользователь: </span> {{ rating.username }}</p>
+	            <p><span>Пользователь: </span>{% if not is_not_author %}{{ rating.username }}{% else %}{{ request.user }}{% endif %}</p>
 	          </div>
           </div>
             {% if not is_not_author %}
