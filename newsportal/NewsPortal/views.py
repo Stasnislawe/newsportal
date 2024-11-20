@@ -131,7 +131,7 @@ class PostDetail(LoginRequiredMixin, DetailView):
         if not obj:
             obj = super().get_object(queryset=self.queryset)
             cache.set(f'product-{self.kwargs["pk"]}', obj)
-        if (current_post.author != self.request.user.user_admin) and (current_post.draft == False):
+        if (current_post.draft==False) and (current_post.author != self.request.user.user_admin):
             return self.handle_no_permission()
 
         return obj

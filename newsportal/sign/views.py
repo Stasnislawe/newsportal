@@ -35,7 +35,7 @@ def disupgrade_me(request):
 class BaseRegisterView(CreateView):
     model = User
     form_class = BaseRegisterForm
-    success_url = '/'
+    success_url = reverse_lazy('login')
 
 
 class IndexView(LoginRequiredMixin, TemplateView):

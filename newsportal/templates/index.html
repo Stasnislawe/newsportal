@@ -62,7 +62,7 @@
                 <img class="col-lg-6 d-flex" src="{% static 'images/nophoto.jpg' %}">
             {% endif %}
         </div>
-        <div><button><a class="nav-link" href="/sign/logout/">Выйти</a></button></div>
+        <div><button><a class="nav-link" href="{% url 'logout' %}">Выйти</a></button></div>
       </div>
     </section>
 	</div><!-- END COLORLIB-MAIN -->
