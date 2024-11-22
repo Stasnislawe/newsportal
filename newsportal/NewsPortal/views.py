@@ -20,7 +20,7 @@ from .tasks import new_post_added
 class PostsList(ListView):
     model = Post
     ordering = '-time_create'
-    template_name = 'posts.html'
+    template_name = 'post/posts.html'
     queryset = Post.objects.filter(draft=True).all().order_by('-time_create')
     context_object_name = 'posts'
     paginate_by = 8
@@ -115,7 +115,7 @@ class PostDetail(LoginRequiredMixin, DetailView):
     model = Post
     ordering = 'heading'
     comment_form = CommentForm
-    template_name = 'post.html'
+    template_name = 'post/post.html'
     # Название объекта, в котором будет выбранный пользователем продукт
     context_object_name = 'post'
 
@@ -140,7 +140,7 @@ class PostDetail(LoginRequiredMixin, DetailView):
 class MyPosts(PermissionRequiredMixin, ListView):
     permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
     model = Post
-    template_name = 'myposts.html'
+    template_name = 'post/myposts.html'
 
     def get_context_data(self, **kwargs):
         req_user = Author.objects.get(user=self.request.user)
@@ -152,7 +152,7 @@ class PostCreate(PermissionRequiredMixin, CreateView):
     permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
     form_class = PostForm
     model = Post
-    template_name = 'post_create.html'
+    template_name = 'post/post_create.html'
 
     def get_context_data(self, **kwargs):
         kwargs['cats'] = Category.objects.all()
@@ -169,7 +169,7 @@ class PostCreate(PermissionRequiredMixin, CreateView):
 class NewsDelete(PermissionRequiredMixin, DeleteView):
     permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
     model = Post
-    template_name = 'myposts.html'
+    template_name = 'post/myposts.html'
     success_url = reverse_lazy('myposts')
 
     def delete(self, request, *args, **kwargs):
@@ -185,7 +185,7 @@ class NewsEdit(PermissionRequiredMixin, UpdateView):
     permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
     form_class = PostForm
     model = Post
-    template_name = 'news_edit.html'
+    template_name = 'post/news_edit.html'
 
     def get_context_data(self, **kwargs):
         kwargs['update'] = True

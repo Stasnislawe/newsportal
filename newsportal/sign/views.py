@@ -39,7 +39,7 @@ class BaseRegisterView(CreateView):
 
 
 class IndexView(LoginRequiredMixin, TemplateView):
-    template_name = 'index.html'
+    template_name = 'account/index.html'
 
     def get_context_data(self, **kwargs):
         if Author.objects.filter(user__username=self.request.user).exists():
@@ -56,7 +56,7 @@ class CreateAuthor(CreateView):
     model = Author
     form_class = AuthorForm
     success_url = reverse_lazy('index')
-    template_name = 'authorcreate.html'
+    template_name = 'authors/authorcreate.html'
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -70,7 +70,7 @@ class EditAuthor(UpdateView):
     model = Author
     form_class = AuthorForm
     success_url = reverse_lazy('index')
-    template_name = 'authoredit.html'
+    template_name = 'authors/authoredit.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

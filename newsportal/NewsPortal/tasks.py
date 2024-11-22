@@ -20,7 +20,7 @@ def every_monday_message():
                 subscr.append(subscriber['email'])
 
             html_content = render_to_string(
-                'everyweek.html',
+                'account/email/everyweek.html',
                 {
                     'link': f'{settings.SITE_URL}newsportal/',
                 }
@@ -49,7 +49,7 @@ def new_post_added(pk):
         for user in subscribers_user:
             subscribers.append(user.email)
     html_context = render_to_string(
-        'post_created_email.html',
+        'account/email/post_created_email.html',
         {
             'text': Post.preview,
             'link': f'{settings.SITE_URL}newsportal/{pk}'
