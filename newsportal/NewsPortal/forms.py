@@ -15,11 +15,7 @@ class AuthorForm(forms.ModelForm):
         # self.helper.field_class = 'col-lg-10'
         # self.helper.form_method = 'post'
         # self.helper.form_action = 'submit_survey'
-
-        self.request = kwargs.pop("request", None)
-
         super(AuthorForm, self).__init__(*args, **kwargs)
-
         self.fields['photo'].label = 'Аватар'
         self.fields['username'].label = 'Никнейм'
         self.fields['description'].label = 'О себе'
@@ -52,13 +48,13 @@ class AuthorForm(forms.ModelForm):
             raise ValidationError(
                 "Минимальное количество символовов описания - 30")
 
-
         return cleaned_data
 
 
 class PostForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
+        self.author = kwargs.pop('user', None)
         super(PostForm, self).__init__(*args, **kwargs)
         self.fields['image'].label = 'Изображение'
         self.fields['heading'].label = 'Наименование'
@@ -84,7 +80,8 @@ class PostForm(forms.ModelForm):
         cleaned_data = super().clean()
         text = cleaned_data.get("text")
         heading = cleaned_data.get("heading")
-
+        draft = cleaned_data.get("draft")
+        author = self.author
 
         if heading is not None and len(heading) > 100:
             raise ValidationError({
@@ -103,14 +100,15 @@ class PostForm(forms.ModelForm):
             raise ValidationError(
                 "Минимальное количество символовов - 30")
 
-        # today = date.today()
-        # post_limit = Post.objects.filter(author=author, time_create__date=today).count()
-        # if post_limit >= 3:
-        #     raise ValidationError({
-        #             'text': "Вы можете публиковать только 3 поста в день!"
-        #     })
+        today = date.today()
+        post_limit = Post.objects.filter(author__user=author, time_create__date=today).count()
+        if post_limit >= 3:
+            raise ValidationError({
+                    'draft': "Вы можете публиковать только 3 поста в день!"
+            })
 
         return cleaned_data
+
 
 class CommentForm(forms.ModelForm):
 

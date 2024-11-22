@@ -47,9 +47,9 @@
         <div class="row block-9">
           <div class="col-lg-6 d-flex">
               {% if is_not_author %}
-              {% include 'authorcreate.html' %}
+              {% include 'authors/authorcreate.html' %}
               {% else %}
-              {% include 'authoredit.html' %}
+              {% include 'authors/authoredit.html' %}
               {% endif %}
           </div>
             {% if not is_not_author %}

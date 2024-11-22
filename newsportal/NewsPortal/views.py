@@ -154,6 +154,12 @@ class PostCreate(PermissionRequiredMixin, CreateView):
     model = Post
     template_name = 'post/post_create.html'
 
+    def get_form_kwargs(self):
+        user = self.request.user
+        kwargs = super().get_form_kwargs()
+        kwargs.update({'user': user})
+        return kwargs
+
     def get_context_data(self, **kwargs):
         kwargs['cats'] = Category.objects.all()
         return super().get_context_data(**kwargs)
