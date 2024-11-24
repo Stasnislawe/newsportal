@@ -1,11 +1,13 @@
+from asgiref.sync import sync_to_async, async_to_sync
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.db.models import Count
+from django.db.models import Count, Sum
+from django.db.models.functions import Coalesce
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView, TemplateView
-from .models import Post, Category, Comment, Author
+from .models import Post, Category, Comment, Author, Likes, Dislikes
 from .filters import SearchFilter
 from .forms import PostForm, CommentForm, AuthorForm
 from django.core.cache import cache
@@ -29,8 +31,9 @@ class PostsList(ListView):
         context = super(PostsList, self).get_context_data(**kwargs)
         # pagin = Paginator(Post.objects.filter(draft=True).all().order_by('-time_create'), self.paginate_by)
         # context['posts'] = pagin.page(context['page_obj'].number)
+        #         aggregate(pl=Coalesce(Sum('post_likes__rate'), 0))
         context['top5cat'] = Category.objects.filter(postcategory__post__draft=True).annotate(Count('subscribers')).order_by('-name_category')[:5]
-        context['top3posts'] = Post.objects.filter(postcategory__post__draft=True).annotate(Count('rating_post')).order_by('-rating_post')[:3]
+        context['top3posts'] = Post.objects.filter(postcategory__post__draft=True).annotate(Count('post_likes__rate')).order_by('-post_likes__rate')[:3]
         context['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
         context['filterset'] = self.filterset
         return context
@@ -95,18 +98,53 @@ class OnlyArt(ListView):
         self.filterset = SearchFilter(self.request.GET, queryset)
         return self.filterset.qs
 
+# >>> Post.objects.filter(postcategory__post__draft=True).annotate(Count('post_likes__rate')).values('post_likes__rate', 'post_likes__user')
+#>>> Post.objects.filter(postcategory__post__draft=True).values_list('post_likes__user', flat=True)
+
 
 @login_required()
 def like(request, pk):
+    user = request.user
     post = Post.objects.get(pk=pk)
-    post.like()
+    if not Likes.objects.filter(rating=post).exists():
+        rate = Likes(rating=post)
+        rate.save()
+        rate.user.add(user)
+        rate.save()
+        rate.like()
+    elif user.pk in Post.objects.filter(postcategory__post__draft=True, pk=pk).values_list('post_likes__user', flat=True):
+        rate = Likes.objects.get(rating=post)
+        rate.dislike()
+        rate.user.remove(user)
+        rate.save()
+    elif user.pk not in Post.objects.filter(postcategory__post__draft=True, pk=pk).values_list('post_likes__user', flat=True):
+        rate = Likes.objects.get(rating=post)
+        rate.user.add(user)
+        rate.save()
+        rate.like()
     return redirect(post.get_absolute_url())
 
 
 @login_required()
 def dislike(request, pk):
+    user = request.user
     post = Post.objects.get(pk=pk)
-    post.dislike()
+    if not Dislikes.objects.filter(rating=post).exists():
+        rate = Dislikes(rating=post)
+        rate.save()
+        rate.user.add(user)
+        rate.save()
+        rate.like()
+    elif user.pk in Post.objects.filter(postcategory__post__draft=True, pk=pk).values_list('post_dislikes__user', flat=True):
+        rate = Dislikes.objects.get(rating=post)
+        rate.dislike()
+        rate.user.remove(user)
+        rate.save()
+    elif user.pk not in Post.objects.filter(postcategory__post__draft=True, pk=pk).values_list('post_dislikes__user', flat=True):
+        rate = Dislikes.objects.get(rating=post)
+        rate.like()
+        rate.user.add(user)
+        rate.save()
     return redirect(post.get_absolute_url())
 
 
@@ -123,6 +161,10 @@ class PostDetail(LoginRequiredMixin, DetailView):
         kwargs['comments'] = Comment.objects.filter(post_id=self.object.pk).all()
         kwargs['form'] = self.comment_form
         kwargs['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
+        likes = Likes.objects.filter(rating=self.object.pk).aggregate(sm=Coalesce(Sum('rate'), 0)).get('sm')
+        dislikes = Dislikes.objects.filter(rating=self.object.pk).aggregate(sm=Coalesce(Sum('rate'), 0)).get('sm')
+        kwargs['likes'] = likes
+        kwargs['dislikes'] = dislikes
         return super().get_context_data(**kwargs)
 
     def get_object(self, *args, **kwargs):
