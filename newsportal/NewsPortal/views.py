@@ -31,8 +31,7 @@ class PostsList(ListView):
         context = super(PostsList, self).get_context_data(**kwargs)
         # pagin = Paginator(Post.objects.filter(draft=True).all().order_by('-time_create'), self.paginate_by)
         # context['posts'] = pagin.page(context['page_obj'].number)
-        #         aggregate(pl=Coalesce(Sum('post_likes__rate'), 0))
-        context['top5cat'] = Category.objects.filter(postcategory__post__draft=True).annotate(Count('subscribers')).order_by('-name_category')[:5]
+        context['top5cat'] = Category.objects.filter(postcategory__post__draft=True).annotate(total=Count('subscribers')).order_by('-total')[:5]
         context['top3posts'] = Post.objects.filter(postcategory__post__draft=True).annotate(Count('post_likes__rate')).order_by('-post_likes__rate')[:3]
         context['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
         context['filterset'] = self.filterset
@@ -67,7 +66,10 @@ class OnlyNews(ListView):
     def get_context_data(self, **kwargs):
         kwargs['news'] = Post.objects.filter(post_type='NW', draft=True).all()
         kwargs['cntnews'] = Post.objects.filter(post_type='NW').count()
-        kwargs['top5cat'] = Category.objects.annotate(Count('subscribers')).order_by('-name_category')[:5]
+        kwargs['top5cat'] = Category.objects.filter(postcategory__post__draft=True).annotate(
+            total=Count('subscribers')).order_by('-total')[:5]
+        kwargs['top3posts'] = Post.objects.filter(postcategory__post__draft=True).annotate(
+            Count('post_likes__rate')).order_by('-post_likes__rate')[:3]
         kwargs['filterset'] = self.filterset
         kwargs['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
         return super().get_context_data(**kwargs)
@@ -87,7 +89,10 @@ class OnlyArt(ListView):
 
     def get_context_data(self, **kwargs):
         kwargs['news'] = Post.objects.filter(post_type='AR', draft=True).all()
-        kwargs['top5cat'] = Category.objects.annotate(Count('subscribers')).order_by('-name_category')[:5]
+        kwargs['top5cat'] = Category.objects.filter(postcategory__post__draft=True).annotate(
+            total=Count('subscribers')).order_by('-total')[:5]
+        kwargs['top3posts'] = Post.objects.filter(postcategory__post__draft=True).annotate(
+            Count('post_likes__rate')).order_by('-post_likes__rate')[:3]
         kwargs['cntnews'] = Post.objects.filter(post_type='AR').count()
         kwargs['filterset'] = self.filterset
         kwargs['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
@@ -97,9 +102,6 @@ class OnlyArt(ListView):
         queryset = super().get_queryset()
         self.filterset = SearchFilter(self.request.GET, queryset)
         return self.filterset.qs
-
-# >>> Post.objects.filter(postcategory__post__draft=True).annotate(Count('post_likes__rate')).values('post_likes__rate', 'post_likes__user')
-#>>> Post.objects.filter(postcategory__post__draft=True).values_list('post_likes__user', flat=True)
 
 
 @login_required()

@@ -83,11 +83,11 @@ Posts
 	              <div class="block-21 mb-4 d-flex">
 	                <a class="blog-img mr-4" style="background-image: url({{ ps.image.url }});"></a>
 	                <div class="text">
-	                  <h3 class="heading"><a href="#">{{ ps.heading }}</a></h3>
+	                  <h3 class="heading"><a href="{% url 'news_detail' ps.pk %}">{{ ps.heading }}</a></h3>
 	                  <div class="meta">
 	                    <div><a href="#"><span class="icon-calendar"></span>{{ ps.time_create }}</a></div>
 	                    <div><a href="#"><span class="icon-person"></span>{{ ps.author }}</a></div>
-	                    <div><a href="#"><span class="icon-chat"></span>{{ ps.rating_post }}</a></div>
+	                    <div><a href="#"><span class="icon-chat"></span>{{ ps.post_likes.rate }}</a></div>
 	                  </div>
 	                </div>
 	              </div>
