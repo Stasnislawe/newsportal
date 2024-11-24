@@ -1,7 +1,7 @@
 from django.urls import path, include
 # Импортируем созданное нами представление
 from .views import PostsList, PostDetail, PostCreate, NewsDelete, NewsEdit, subscribe, \
-   unsubscribe, CategoryListView, OnlyNews, OnlyArt, comment, MyPosts, like, dislike, deletecomment
+   unsubscribe, CategoryListView, OnlyNews, OnlyArt, comment, MyPosts, like, deletecomment, dislike
 from django.views.decorators.cache import cache_page
 
 urlpatterns = [
