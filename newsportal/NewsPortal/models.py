@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models import Sum
+from django.db.models import Sum, CheckConstraint
 from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.core.cache import cache
@@ -17,11 +17,13 @@ class Author(models.Model):
         return self.user.username
 
     def update_rating(self):
-        post_rating = self.posts.aggregate(pr=Coalesce(Sum('rating_post'), 0)).get('pr')
-        comment_rating = self.user.comments.aggregate(cr=Coalesce(Sum('rating_comment'), 0)).get('cr')
-        posts_comment_rating = self.posts.aggregate(pcr=Coalesce(Sum('commentpost__rating_comment'), 0)).get('pcr')
+        post_likes_rating = self.posts.aggregate(pl=Coalesce(Sum('post_likes__rate'), 0)).get('pl')
+        post_dislikes_rating = self.posts.aggregate(pd=Coalesce(Sum('post_dislikes__rate'), 0)).get('pd')
 
-        self.rating = post_rating * 3 + comment_rating + posts_comment_rating
+        # comment_rating = self.user.comments.aggregate(cr=Coalesce(Sum('rating_comment'), 0)).get('cr')
+        # posts_comment_rating = self.posts.aggregate(pcr=Coalesce(Sum('commentpost__rating_comment'), 0)).get('pcr')
+
+        self.rating = post_likes_rating * 3 - post_dislikes_rating
         self.save()
 
 
@@ -51,19 +53,10 @@ class Post(models.Model):
     heading = models.CharField(max_length=255, default='Название отсутсвует')
     text = models.TextField(verbose_name='Текст до изображения')
     text2 = models.TextField(verbose_name='Текст после изображения', blank=True)
-    rating_post = models.IntegerField(default=0)
     draft = models.BooleanField(verbose_name='Опубликовать', default=True)
 
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name ='posts')
     posts_mtm = models.ManyToManyField(Category, through='PostCategory')
-
-    def like(self):
-        self.rating_post += 1
-        self.save()
-
-    def dislike(self):
-        self.rating_post -= 1
-        self.save()
 
     def preview(self):
         return self.text[0:125] + '...'
@@ -77,6 +70,40 @@ class Post(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)  # сначала вызываем метод родителя, чтобы объект сохранился
         cache.delete(f'product-{self.pk}')  # затем удаляем его из кэша, чтобы сбросить его
+
+
+class Likes(models.Model):
+    rate = models.PositiveIntegerField(default=0)
+    user = models.ManyToManyField(User, related_name='user_likes')
+    rating = models.OneToOneField(Post, related_name='post_likes', on_delete=models.CASCADE)
+
+    def like(self):
+        self.rate += 1
+        self.save()
+
+    def dislike(self):
+        self.rate -= 1
+        self.save()
+
+    def preview(self):
+        return self.rate
+
+
+class Dislikes(models.Model):
+    rate = models.PositiveIntegerField(default=0)
+    user = models.ManyToManyField(User, related_name='user_dislikes')
+    rating = models.OneToOneField(Post, related_name='post_dislikes', on_delete=models.CASCADE)
+
+    def like(self):
+        self.rate += 1
+        self.save()
+
+    def dislike(self):
+        self.rate -= 1
+        self.save()
+
+    def preview(self):
+        return self.rate
 
 
 class PostCategory(models.Model):
