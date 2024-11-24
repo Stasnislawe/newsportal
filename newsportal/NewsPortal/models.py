@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models import Sum, CheckConstraint
+from django.db.models import Sum, CheckConstraint, Count
 from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.core.cache import cache
@@ -19,11 +19,9 @@ class Author(models.Model):
     def update_rating(self):
         post_likes_rating = self.posts.aggregate(pl=Coalesce(Sum('post_likes__rate'), 0)).get('pl')
         post_dislikes_rating = self.posts.aggregate(pd=Coalesce(Sum('post_dislikes__rate'), 0)).get('pd')
-
-        # comment_rating = self.user.comments.aggregate(cr=Coalesce(Sum('rating_comment'), 0)).get('cr')
-        # posts_comment_rating = self.posts.aggregate(pcr=Coalesce(Sum('commentpost__rating_comment'), 0)).get('pcr')
-
-        self.rating = post_likes_rating * 3 - post_dislikes_rating
+        count_comments = self.posts.aggregate(cnt=Coalesce(Count('commentpost'), 0)).get('cnt')
+        rate_comments = (self.posts.aggregate(rc=Coalesce(Sum('author__user__com_rate_user__rating'), 0)).get('rc'))
+        self.rating = post_likes_rating * 3 - post_dislikes_rating + count_comments + (rate_comments/3)
         self.save()
 
 
@@ -114,19 +112,24 @@ class PostCategory(models.Model):
 class Comment(models.Model):
     comment = models.CharField(max_length=255)
     time_create_comment = models.DateTimeField(auto_now_add=True)
-    rating_comment = models.IntegerField(default=0)
 
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='commentpost')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
 
+    def __str__(self):
+        return '{} {} {} {} {}'.format(self.pk, self.comment, self.time_create_comment, self.post, self.user)
+
+
+class CommentRating(models.Model):
+    commentpk = models.OneToOneField(Comment, on_delete=models.CASCADE, related_name='commentrating')
+    user = models.ManyToManyField(User, related_name='com_rate_user')
+    rating = models.IntegerField(default=0)
+
     def like(self):
-        self.rating_comment += 1
+        self.rating += 1
         self.save()
 
     def dislike(self):
-        self.rating_comment -= 1
+        self.rating -= 1
         self.save()
-
-    def __str__(self):
-        return '{} {} {} {} {} {}'.format(self.pk, self.comment, self.time_create_comment, self.rating_comment, self.post, self.user)
 
