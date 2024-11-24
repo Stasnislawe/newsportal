@@ -43,8 +43,8 @@ Post
 					<div class="tag-widget post-tag-container mb-5 mt-5">
 						<p> Рейтинг поста: {{ post.rating_post }}</p>
 		              <div class="tagcloud">
-		                <a href="{% url 'like' post.pk %}" class="tag-cloud-link">Нравится 👍</a>
-		                <a href="{% url 'dislike' post.pk %}" class="tag-cloud-link">Не нравится 👎</a>
+		                <a href="{% url 'like' post.pk %}" class="tag-cloud-link">Нравится ( {{ likes }} )</a>
+		                <a href="{% url 'dislike' post.pk %}" class="tag-cloud-link">Не нравится ( {{ dislikes }} )</a>
 		              </div>
 					</div>
 		            <div class="pt-5 mt-5">
