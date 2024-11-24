@@ -7,7 +7,7 @@ from django.db.models.functions import Coalesce
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView, TemplateView
-from .models import Post, Category, Comment, Author, Likes, Dislikes
+from .models import Post, Category, Comment, Author, Likes, Dislikes, CommentRating
 from .filters import SearchFilter
 from .forms import PostForm, CommentForm, AuthorForm
 from django.core.cache import cache
@@ -284,6 +284,27 @@ def comment(request, pk):
         comment.comment = form.cleaned_data['comment']
         comment.save()
 
+    return redirect(post.get_absolute_url())
+
+
+@login_required
+def comment_like(request, pk):
+    user = request.user
+    post = Post.objects.get(commentpost=pk)
+    comments = Comment.objects.get(pk=pk)
+    if not CommentRating.objects.filter(commentpk=comments).exists():
+        comment = CommentRating(commentpk=comments)
+        comment.save()
+        comment.user.add(user)
+        comment.like()
+    elif user.pk in CommentRating.objects.filter(commentpk=comments).values_list('user', flat=True):
+        comment = CommentRating.objects.get(commentpk=comments)
+        comment.user.remove(user)
+        comment.dislike()
+    elif user.pk not in CommentRating.objects.filter(commentpk=comments).values_list('user', flat=True):
+        comment = CommentRating.objects.get(commentpk=comments)
+        comment.user.add(user)
+        comment.like()
     return redirect(post.get_absolute_url())
 
 
