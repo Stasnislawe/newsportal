@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Author, Category, Post, Comment, PostCategory, Likes, Dislikes
+from .models import Author, Category, Post, Comment, PostCategory, Likes, Dislikes, CommentRating
+
 #from modeltranslation.admin import TranslationAdmin
 
 #class PostAdmin(admin.ModelAdmin):
@@ -20,6 +21,7 @@ admin.site.register(Comment)
 admin.site.register(Post)
 admin.site.register(Likes)
 admin.site.register(Dislikes)
+admin.site.register(CommentRating)
 admin.site.register(Category)
 
 
