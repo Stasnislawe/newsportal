@@ -1,4 +1,5 @@
 {% extends 'flatpages/default.html' %}
+{% load static %}
 
 {% block content %}
     <div class="users">
@@ -7,10 +8,10 @@
             {% if user != request.user %}
             <div class="user">
                 <div class="img-div">
-                    <img src="{{ user.user_admin.photo.url }}">
+                    <img src="{% if user.user_admin %}{{ user.user_admin.photo.url }}{% else %}{% static 'images/nophoto.jpg' %}{% endif %}">
                 </div>
                 <div class="text-div">
-                    <div class="name">Ник {{ user.user_admin.username }}
+                    <div class="name">{% if user.user_admin %}Автор {{ user.user_admin.username }}{% else %}Пользователь не является автором{% endif %}
                         <div>Пользователь {{ user.username }}</div>
                     </div>
                     <a href="{% url 'create_dialog' user.pk %}">Написать сообщение пользователю {{ user.username }}</a>
