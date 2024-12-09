@@ -65,9 +65,9 @@ class Post(models.Model):
     def get_absolute_url(self):
         return reverse('news_detail', args=[str(self.id)])
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)  # сначала вызываем метод родителя, чтобы объект сохранился
-        cache.delete(f'product-{self.pk}')  # затем удаляем его из кэша, чтобы сбросить его
+    # def save(self, *args, **kwargs):
+    #     super().save(*args, **kwargs)  # сначала вызываем метод родителя, чтобы объект сохранился
+    #     cache.delete(f'product-{self.pk}')  # затем удаляем его из кэша, чтобы сбросить его
 
 
 class Likes(models.Model):
