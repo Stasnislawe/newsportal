@@ -2,6 +2,8 @@
 {% extends 'flatpages/default.html' %}
 {% load static %}
 {% load custom_filters %}
+{% load crispy_forms_tags %}
+
 
 {% load custom_tags %}
 
@@ -20,15 +22,6 @@ Post
 		              <img src="{{ post.image.url }}" alt="" class="img-fluid">
 		            </p>
 		            <p>{{ post.text2 }}</p>
-<!--		            <div class="tag-widget post-tag-container mb-5 mt-5">-->
-<!--		              <div class="tagcloud">-->
-<!--		                <a href="#" class="tag-cloud-link">Life</a>-->
-<!--		                <a href="#" class="tag-cloud-link">Sport</a>-->
-<!--		                <a href="#" class="tag-cloud-link">Tech</a>-->
-<!--		                <a href="#" class="tag-cloud-link">Travel</a>-->
-<!--		              </div>-->
-<!--		            </div>-->
-
 		            <div class="about-author d-flex p-4 bg-light">
 		              <div class="bio mr-5">
 		                <img src="{{ post.author.photo.url }}" alt="Image placeholder" class="img-fluid mb-4">
@@ -39,8 +32,7 @@ Post
 		                <p>{{ post.author.description }}</p>
 		              </div>
 		            </div>
-					<div class="tag-widget post-tag-container mb-5 mt-5">
-						<p> Рейтинг поста: {{ post.rating_post }}</p>
+					<div class="tagcloud">
 		              <div class="tagcloud">
 		                <a href="{% url 'like' post.pk %}" class="tag-cloud-link">Нравится ( {{ likes }} )</a>
 		                <a href="{% url 'dislike' post.pk %}" class="tag-cloud-link">Не нравится ( {{ dislikes }} )</a>
@@ -48,6 +40,9 @@ Post
 					</div>
 		            <div class="pt-5 mt-5">
 		              <h3 class="mb-5 font-weight-bold">Комментарии ({{ comments|length }})</h3>
+						<button type="button" class="btn btn-primary" style="margin-bottom: 30px;" data-toggle="modal" data-target="#exampleModal">
+								Добавить комментарий
+						</button>
 		              <ul class="comment-list">
 						  {% for com in comments %}
 							<li class="comment">
@@ -60,41 +55,45 @@ Post
 								<p>{{ com.comment }}</p>
 								  <p>Нравится<a href="{% url 'comment_rate' com.pk %}">{% if com.commentrating.rating %} <svg enable-background="new 0 0 32 32" height="32px" id="Layer_1" version="1.1" viewBox="0 0 32 32" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g><polyline fill="none" points="   649,137.999 675,137.999 675,155.999 661,155.999  " stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2"/><polyline fill="none" points="   653,155.999 649,155.999 649,141.999  " stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2"/><polyline fill="none" points="   661,156 653,162 653,156  " stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2"/></g><g><g><path d="M16,30c-0.215,0-0.43-0.069-0.61-0.207C14.844,29.372,2,19.396,2,11c0-4.411,3.589-8,8-8s8,3.589,8,8c0,0.552-0.447,1-1,1    c-0.552,0-1-0.448-1-1c0-3.309-2.691-6-6-6s-6,2.691-6,6c0,6.467,9.477,14.653,12,16.719C18.522,25.653,28,17.46,28,11    c0-3.309-2.691-6-6-6c-0.895,0-1.756,0.192-2.559,0.57c-0.5,0.236-1.097,0.021-1.331-0.478c-0.235-0.5-0.021-1.095,0.478-1.331    C19.66,3.256,20.808,3,22,3c4.411,0,8,3.589,8,8c0,8.396-12.844,18.372-13.39,18.793C16.43,29.931,16.215,30,16,30z"/></g></g></svg> ({{ com.commentrating.rating }}){% else %}
 									  <svg enable-background="new 0 0 32 32" height="32px" id="Layer_1" version="1.1" viewBox="0 0 32 32" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g><polyline fill="none" points="   649,137.999 675,137.999 675,155.999 661,155.999  " stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2"/><polyline fill="none" points="   653,155.999 649,155.999 649,141.999  " stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2"/><polyline fill="none" points="   661,156 653,162 653,156  " stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2"/></g><g><g><path d="M16,30c-0.215,0-0.43-0.069-0.61-0.207C14.844,29.372,2,19.396,2,11c0-4.411,3.589-8,8-8s8,3.589,8,8c0,0.552-0.447,1-1,1    c-0.552,0-1-0.448-1-1c0-3.309-2.691-6-6-6s-6,2.691-6,6c0,6.467,9.477,14.653,12,16.719C18.522,25.653,28,17.46,28,11    c0-3.309-2.691-6-6-6c-0.895,0-1.756,0.192-2.559,0.57c-0.5,0.236-1.097,0.021-1.331-0.478c-0.235-0.5-0.021-1.095,0.478-1.331    C19.66,3.256,20.808,3,22,3c4.411,0,8,3.589,8,8c0,8.396-12.844,18.372-13.39,18.793C16.43,29.931,16.215,30,16,30z"/></g></g></svg>{% endif %}</a></p>
-								  {% if request.user == com.user or requst.user == com.commentpost.author.user %}
+								  {% if request.user == com.user or request.user == com.commentpost.author.user %}
 <!--								  <a href="{% url 'comment_del' com.pk %}">Удалить комментарий</a>-->
-								  <a href="javascript:void()" onclick="delete_question{{com.pk}}()">Удалить</a>
-								  <form id="delete_form{{com.pk}}" action="{% url 'comment_del' com.pk %}" method="post">{% csrf_token %}</form>
-								  <script>
-									  function delete_question{{com.pk}}() {
-										  if (confirm("Вы уверены")) {
-											  document.getElementById('delete_form{{com.pk}}').submit()
+									  <a href="javascript:void()" onclick="delete_question{{com.pk}}()">Удалить</a>
+									  <form id="delete_form{{com.pk}}" action="{% url 'comment_del' com.pk %}" method="post">{% csrf_token %}</form>
+									  <script>
+										  function delete_question{{com.pk}}() {
+											  if (confirm("Вы уверены")) {
+												  document.getElementById('delete_form{{com.pk}}').submit()
+											  }
 										  }
-									  }
-									  </script>
-								  {% else %}
+										  </script>
 								  {% endif %}
 							  </div>
 							</li>
 						  {% endfor %}
-
-
-		              <div class="comment-form-wrap pt-5">
-		                <h3 class="mb-5">Оставить комментарий</h3>
-						  {% if form %}
-		                <form id="comment_form" action="{% url 'comment_add' post.pk %}" class="p-3 p-md-5 bg-light" method="post">
-		                 	{% csrf_token %}
-		                  <div class="form-group">
-		                    <label for="id_comment">Комментарий</label>
-							  <textarea cols="40" rows="10" name="comment" id="id_comment" class="form-control" id="name"></textarea>
-		                  </div>
-							<div class="form-group">
-	                			<input type="submit" value="Добавить комментарий" class="btn btn-primary py-3 px-5">
-	              			</div>
-		                </form>
-						  {% endif %}
-		              </div>
 					  </ul>
 					</div>
        </div>
+</div>
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Добавить комментарий</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form action="{% url 'comment_add' post.pk %}" id="add_form" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form|crispy }}
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+            <button form="add_form" type="submit" class="btn btn-primary">Опубликовать</button>
+          </div>
+        </div>
+      </div>
 </div>
 {% endblock content %}
