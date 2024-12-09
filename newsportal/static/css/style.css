@@ -9013,7 +9013,9 @@ textarea.form-control {
       color: gray; }
 
 .tagcloud {
-  padding: 0; }
+  padding: 0;
+  height: 30px;
+  width: 100%;}
   .tagcloud a {
     text-transform: uppercase;
     display: inline-block;
