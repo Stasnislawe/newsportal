@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'NewsPortal',
     'django_filters',
     'sign',
+    'chat',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
