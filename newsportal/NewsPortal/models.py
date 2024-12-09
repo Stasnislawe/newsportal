@@ -53,7 +53,7 @@ class Post(models.Model):
     text2 = models.TextField(verbose_name='Текст после изображения', blank=True)
     draft = models.BooleanField(verbose_name='Опубликовать', default=True)
 
-    author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name ='posts')
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='posts')
     posts_mtm = models.ManyToManyField(Category, through='PostCategory')
 
     def preview(self):
