@@ -40,6 +40,8 @@
 				<ul>
 					<li><a href="{% url 'news_list' %}">Главная</a></li>
 					<li><a href="{% url 'index' %}">Личный Кабинет</a></li>
+                    <li><a href="{% url 'users' %}">Пользователи</a></li>
+                    <li><a href="{% url 'dialogs' %}">Сообщения</a></li>
                     {% if not is_not_author %}
 					<li><a href="{% url 'news_create' %}">Добавить Пост</a></li>
 					<li><a href="{% url 'myviews' %}">Мои Посты</a></li>
