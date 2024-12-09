@@ -22,11 +22,7 @@
                 {% get_companion user chat as companion %}
                 <div class="href1">
                     <a href="{{ chat.get_absolute_url }}">
-                        {% if companion %}
-                        <img class="dialogs_img" src="{{ companion.user_admin.photo.url }}">
-                        {% else %}
-                        <img class="dialogs_img" src="{% static 'images/nophoto.jpg' %}">
-                        {% endif %}
+                        <img class="dialogs_img" src="{% if companion.user_admin %}{{ companion.user_admin.photo.url }}{% else %}{% static 'images/nophoto.jpg' %}{% endif %}">
                         <div class="text-div">
                             <div class="upper-div">
                                 <div class="name">{% if companion %}{{ companion.username }}{% else %}Удален{% endif %}</div>
