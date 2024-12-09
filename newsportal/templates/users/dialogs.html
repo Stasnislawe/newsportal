@@ -1,0 +1,61 @@
+{% extends 'flatpages/default.html' %}
+{% load custom_tags %}
+{% load static %}
+
+{% block content %}
+<div class="dialogs">
+    <div class="lk">
+        <div class="info">
+            <img src="{{ request.user.user_admin.photo.url }}">
+            <div class="user">{{ request.user.user_admin.username }}</div>
+        </div>
+    </div>
+    <div class="dialogs_list">
+        <h3>Мои сообщения</h3>
+        {% load tz %}
+        {% if not chats %}
+            <div class="not_chats">Нет ни одного диалога</div>
+        {% endif %}
+        {% for chat in chats %}
+            {% if chat.message_set.count %}
+                {% with last_message=chat.message_set.last %}
+                {% get_companion user chat as companion %}
+                <div class="href1">
+                    <a href="{{ chat.get_absolute_url }}">
+                        {% if companion %}
+                        <img class="dialogs_img" src="{{ companion.user_admin.photo.url }}">
+                        {% else %}
+                        <img class="dialogs_img" src="{% static 'images/nophoto.jpg' %}">
+                        {% endif %}
+                        <div class="text-div">
+                            <div class="upper-div">
+                                <div class="name">{% if companion %}{{ companion.username }}{% else %}Удален{% endif %}</div>
+                                <div>{{ last_message.pub_date|date:"M d, H:i" }}</div>
+                            </div>
+                            {% if companion != last_message.author %}
+                            <div class="lower-div">
+                                <img class="dialogs_mini_img" src="{{ last_message.author.user_admin.photo.url }}">
+                                <div class="textfield">
+                                    <div class="text {% if not last_message.is_readed %}unreaded{% endif %}">{{ last_message.message|truncatechars:30|safe|striptags }}</div>
+                                    {% if not last_message.is_readed %}
+                                    <div class="textcheckfalse">✓</div>
+                                    {% else %}
+                                    <div class="textchecktrue">✓✓</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="newtext">
+                                <div class="{% if not last_message.is_readed %}unreaded{% else %}readed{% endif %}">{{ last_message.message|truncatechars_html:"200"|safe|striptags }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </a>
+                </div>
+                {% endwith %}
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock content %}
