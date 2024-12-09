@@ -1,0 +1,29 @@
+{% extends 'flatpages/default.html' %}
+
+{% block content %}
+    <div class="users">
+        <div class="users-block">
+        {% for user in users %}
+            {% if user != request.user %}
+            <div class="user">
+                <div class="img-div">
+                    <img src="{{ user.user_admin.photo.url }}">
+                </div>
+                <div class="text-div">
+                    <div class="name">Ник {{ user.user_admin.username }}
+                        <div>Пользователь {{ user.username }}</div>
+                    </div>
+                    <a href="{% url 'create_dialog' user.pk %}">Написать сообщение пользователю {{ user.username }}</a>
+                </div>
+                <div class="info-author">
+                    <div class="name">Рейтинг {{ user.user_admin.rating }}
+                        <div>Посты   {{ user.user_admin.posts.all|length }}</div>
+                    </div>
+
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+        </div>
+    </div>
+{% endblock content %}
