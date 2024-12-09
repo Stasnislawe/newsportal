@@ -7,7 +7,7 @@ from django.views.decorators.cache import cache_page
 urlpatterns = [
    path('i18n/', include('django.conf.urls.i18n')),
    path('', cache_page(60)(PostsList.as_view()), name='news_list'),
-   path('<int:pk>', cache_page(60*5)(PostDetail.as_view()), name='news_detail'),
+   path('<int:pk>', PostDetail.as_view(), name='news_detail'),
    path('comment_add/<int:pk>', comment, name='comment_add'),
    path('comment_del/<int:pk>', deletecomment, name='comment_del'),
    path('comment_rate/<int:pk>', comment_like, name='comment_rate'),
