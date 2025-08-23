@@ -10,12 +10,10 @@ from django.views.generic import ListView, DetailView, CreateView, DeleteView, U
 from .models import Post, Category, Comment, Author, Likes, Dislikes, CommentRating
 from .filters import SearchFilter
 from .forms import PostForm, CommentForm, AuthorForm
-from django.core.cache import cache
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.decorators import login_required
-
 from .tasks import new_post_added
 
 
@@ -175,7 +173,7 @@ class PostDetail(LoginRequiredMixin, DetailView):
         # if not obj:
         #     obj = super().get_object(queryset=self.queryset)
         #     cache.set(f'product-{self.kwargs["pk"]}', obj)
-        if (current_post.draft==False) and (current_post.author != self.request.user.user_admin):
+        if (current_post.draft==False) and (current_post.author.user != self.request.user):
             return self.handle_no_permission()
 
         return current_post

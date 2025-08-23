@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
@@ -8,7 +9,7 @@ from .forms import MessageForm
 from .models import Chat
 
 
-class Users(TemplateView):
+class Users(TemplateView, LoginRequiredMixin):
     model = User
     template_name = 'users/users.html'
 
@@ -18,7 +19,7 @@ class Users(TemplateView):
         return context
 
 
-class DialogsView(TemplateView):
+class DialogsView(TemplateView, LoginRequiredMixin):
     model = User
     template_name = 'users/dialogs.html'
     success_url = reverse_lazy('dialogs')
@@ -29,7 +30,7 @@ class DialogsView(TemplateView):
         return super().get_context_data(**kwargs)
 
 
-class MessagesView(View):
+class MessagesView(View, LoginRequiredMixin):
     def get(self, request, chat_id):
         try:
             chat = Chat.objects.get(id=chat_id)
@@ -60,7 +61,7 @@ class MessagesView(View):
         return redirect(reverse('messages', kwargs={'chat_id': chat_id}))
 
 
-class CreateDialogView(View):
+class CreateDialogView(View, LoginRequiredMixin):
     def get(self, request, user_id):
         chats = Chat.objects.filter(members__in=[request.user.id, user_id], type=Chat.DIALOG).annotate(c=Count('members')).filter(c=2)
         if not chats:
