@@ -18,6 +18,7 @@ from .tasks import new_post_added
 
 
 class PostsList(ListView):
+    """Вьюха просмотра всех постов"""
     model = Post
     ordering = '-time_create'
     template_name = 'post/posts.html'
@@ -42,6 +43,7 @@ class PostsList(ListView):
 
 
 class CustomSuccessMessageMixin:
+    """Вызов сообщений на экран"""
     @property
     def success_msg(self):
         return False
@@ -55,6 +57,7 @@ class CustomSuccessMessageMixin:
 
 
 class OnlyNews(ListView):
+    """Вью просмотра всех новостей"""
     model = Post
     ordering = '-time_create'
     template_name = 'news.html'
@@ -79,6 +82,7 @@ class OnlyNews(ListView):
 
 
 class OnlyArt(ListView):
+    """Вью просмотра всех статей"""
     model = Post
     ordering = '-time_create'
     template_name = 'art.html'
@@ -104,6 +108,7 @@ class OnlyArt(ListView):
 
 @login_required()
 def like(request, pk):
+    """Функция лайка"""
     user = request.user
     post = Post.objects.get(pk=pk)
     if not Likes.objects.filter(rating=post).exists():
@@ -127,6 +132,7 @@ def like(request, pk):
 
 @login_required()
 def dislike(request, pk):
+    """"Функция дизлайка"""
     user = request.user
     post = Post.objects.get(pk=pk)
     if not Dislikes.objects.filter(rating=post).exists():
@@ -149,6 +155,7 @@ def dislike(request, pk):
 
 
 class PostDetail(LoginRequiredMixin, DetailView):
+    """Вью просмотра поста"""
     # Модель всё та же, но мы хотим получать информацию по отдельному товару
     model = Post
     ordering = 'heading'
@@ -180,6 +187,7 @@ class PostDetail(LoginRequiredMixin, DetailView):
 
 
 class MyPosts(PermissionRequiredMixin, ListView):
+    """Вью просмотра моих постов"""
     permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
     model = Post
     template_name = 'post/myposts.html'
@@ -191,7 +199,8 @@ class MyPosts(PermissionRequiredMixin, ListView):
 
 
 class PostCreate(PermissionRequiredMixin, CreateView):
-    permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
+    """Вью создания поста"""
+    permission_required = 'NewsPortal.add_post'
     form_class = PostForm
     model = Post
     template_name = 'post/post_create.html'
@@ -215,7 +224,8 @@ class PostCreate(PermissionRequiredMixin, CreateView):
 
 
 class NewsDelete(PermissionRequiredMixin, DeleteView):
-    permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
+    """Вью удаления поста"""
+    permission_required = 'NewsPortal.delete_post'
     model = Post
     template_name = 'post/myposts.html'
     success_url = reverse_lazy('myposts')
@@ -230,7 +240,8 @@ class NewsDelete(PermissionRequiredMixin, DeleteView):
 
 
 class NewsEdit(PermissionRequiredMixin, UpdateView):
-    permission_required = ('NewsPortal.add_post', 'NewsPortal.change_post', 'NewsPortal.delete_post')
+    """Вью редактирования поста"""
+    permission_required = 'NewsPortal.change_post'
     form_class = PostForm
     model = Post
     template_name = 'post/news_edit.html'
@@ -249,6 +260,7 @@ class NewsEdit(PermissionRequiredMixin, UpdateView):
 
 
 class CategoryListView(PostsList):
+    """Вью просмотра постов по категориям"""
     model = Post
     template_name = 'categories/category.html'
     context_object_name = 'category_news_list'
@@ -272,6 +284,7 @@ class CategoryListView(PostsList):
 
 @login_required
 def comment(request, pk):
+    """"Функция коммента"""
     form = CommentForm(request.POST)
     post = get_object_or_404(Post, pk=pk)
 
@@ -287,6 +300,7 @@ def comment(request, pk):
 
 @login_required
 def comment_like(request, pk):
+    """"Функция лайка коммента"""
     user = request.user
     post = Post.objects.get(commentpost=pk)
     comments = Comment.objects.get(pk=pk)
@@ -308,6 +322,7 @@ def comment_like(request, pk):
 
 @login_required
 def deletecomment(request, pk):
+    """"Функция удаления коммента"""
     comment = get_object_or_404(Comment, pk=pk)
     post = Post.objects.get(commentpost__pk=pk)
     if comment.user == request.user or post.author.user == request.user:
@@ -319,6 +334,7 @@ def deletecomment(request, pk):
 
 @login_required
 def subscribe(request, pk):
+    """Функция подписки и оповещения о новых постах на подписанную категорию"""
     user = request.user
     category = Category.objects.get(id=pk)
     category.subscribers.add(user)
@@ -329,6 +345,7 @@ def subscribe(request, pk):
 
 @login_required
 def unsubscribe(request, pk):
+    """"Функция отписки и оповещения о новых постах на подписанную категорию"""
     user = request.user
     category = Category.objects.get(id=pk)
     category.subscribers.remove(user)

@@ -10,6 +10,7 @@ from .models import Chat
 
 
 class Users(TemplateView, LoginRequiredMixin):
+    """Вьюха отображения всех пользователей"""
     model = User
     template_name = 'users/users.html'
 
@@ -20,6 +21,7 @@ class Users(TemplateView, LoginRequiredMixin):
 
 
 class DialogsView(TemplateView, LoginRequiredMixin):
+    """"Вьюха просмотра чатов с пользователями"""
     model = User
     template_name = 'users/dialogs.html'
     success_url = reverse_lazy('dialogs')
@@ -31,6 +33,7 @@ class DialogsView(TemplateView, LoginRequiredMixin):
 
 
 class MessagesView(View, LoginRequiredMixin):
+    """"Вьюха сообщений пользователям"""
     def get(self, request, chat_id):
         try:
             chat = Chat.objects.get(id=chat_id)
@@ -62,6 +65,7 @@ class MessagesView(View, LoginRequiredMixin):
 
 
 class CreateDialogView(View, LoginRequiredMixin):
+    """"Вьюха создания чата с пользователем"""
     def get(self, request, user_id):
         chats = Chat.objects.filter(members__in=[request.user.id, user_id], type=Chat.DIALOG).annotate(c=Count('members')).filter(c=2)
         if not chats:
