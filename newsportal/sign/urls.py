@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth.views import LoginView, LogoutView
-from .views import upgrade_me, disupgrade_me, IndexView, BaseRegisterView, CreateAuthor, EditAuthor
+from .views import upgrade_me, IndexView, BaseRegisterView, save_author_data, delete_author_profile
 
 urlpatterns = [
     path('login/',
@@ -13,8 +13,7 @@ urlpatterns = [
          BaseRegisterView.as_view(template_name='registration/signup.html'),
          name='signup'),
     path('index/', IndexView.as_view(), name='index'),
-    path('index/author', CreateAuthor.as_view(), name='createauthor'),
-    path('index/editautor/<int:pk>', EditAuthor.as_view(), name='editauthor'),
+    path('index/save_author/', save_author_data, name='save_author'),
     path('index/upgrade/', upgrade_me, name='upgrade'),
-    path('index/disupgrade/', disupgrade_me, name ='disupgrade')
+    path('index/delete_author/', delete_author_profile, name='delete_author'),
 ]
