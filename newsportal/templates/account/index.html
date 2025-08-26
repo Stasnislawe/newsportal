@@ -2,71 +2,207 @@
 {% load i18n %}
 {% load static %}
 
-{% block content %}
-	<div id="colorlib-main">
-		<section class="ftco-section contact-section px-md-4">
-      <div class="container">
-        <div class="row d-flex mb-5 contact-info">
-          <div class="col-md-12 mb-4">
-              {% if messages %}
-					<div class="alert alert-success">
-						{% for m in messages %}
-							{{m}}
-						{% endfor %}
-					</div>
-					{% endif %}
-            <h2 class="h3">Личный кабинет</h2>
-          </div>
-          <div class="w-100"></div>
-          <div class="col-lg-6 col-xl-3 d-flex mb-4">
-          	<div class="info bg-light p-4">
-	            <p><span>Пользователь: </span>{% if not is_not_author %}{{ rating.username }}{% else %}{{ request.user }}{% endif %}</p>
-	          </div>
-          </div>
-            {% if not is_not_author %}
-          <div class="col-lg-6 col-xl-3 d-flex mb-4">
-          	<div class="info bg-light p-4">
-	            <p><span>Количество постов:</span> <a href=""> {{ count_mynews|length }}</a></p>
-	          </div>
-          </div>
-          <div class="col-lg-6 col-xl-3 d-flex mb-4">
-          	<div class="info bg-light p-4">
-	            <p><span>Рейтинг:</span>
-                    {{ rating.rating }}
-                </p>
-	          </div>
-          </div>
-          <div class="col-lg-6 col-xl-3 d-flex mb-4">
-          	<div class="info bg-light p-4">
-	            <p><span>Роль:</span> <a href="#">Автор</a></p>
-	          </div>
-          </div>
-
-            {% endif %}
-        </div>
-        <div class="row block-9">
-          <div class="col-lg-6 d-flex">
-              {% if is_not_author %}
-              {% include 'authors/authorcreate.html' %}
-              {% else %}
-              {% include 'authors/authoredit.html' %}
-              {% endif %}
-          </div>
-            {% if not is_not_author %}
-                <div style="width:50%; display: flex; flex-wrap: wrap;">
-                    <img class="d-flex" style="width: 100%;" src="{{ rating.photo.url }}">
-                                        <div>{{ rating.description }}</div>
-
-                </div>
-            {% else %}
-                <img class="col-lg-6 d-flex" src="{% static 'images/nophoto.jpg' %}">
-            {% endif %}
-        </div>
-        <div><button><a class="nav-link" href="{% url 'logout' %}">Выйти</a></button></div>
-      </div>
-    </section>
-	</div><!-- END COLORLIB-MAIN -->
-</div><!-- END COLORLIB-PAGE -->
+{% block extra_head %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 {% endblock %}
 
+{% block content %}
+<div id="colorlib-main">
+    <section class="ftco-section contact-section px-md-4">
+        <div class="container">
+            <div class="row d-flex mb-5 contact-info">
+                <div class="col-md-12 mb-4">
+                    {% if messages %}
+                    <div class="alert alert-info">
+                        {% for m in messages %}
+                            <div>{{ m }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <h2 class="h3">Личный кабинет</h2>
+                </div>
+                <div class="w-100"></div>
+                <div class="col-lg-6 col-xl-3 d-flex mb-4">
+                    <div class="info bg-light p-4">
+                        <p><span>Пользователь: </span>{{ request.user.username }}</p>
+                    </div>
+                </div>
 
+                {% if is_author or has_author_record %}
+                <div class="col-lg-6 col-xl-3 d-flex mb-4">
+                    <div class="info bg-light p-4">
+                        <p><span>Статус: </span>{% if is_author %}Автор{% else %}Бывший автор{% endif %}</p>
+                    </div>
+                </div>
+
+                {% if author %}
+                <div class="col-lg-6 col-xl-3 d-flex mb-4">
+                    <div class="info bg-light p-4">
+                        <p><span>Никнейм:</span> {{ author.user.username }}</p>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-xl-3 d-flex mb-4">
+                    <div class="info bg-light p-4">
+                        <p><span>Количество постов:</span> {{ count_mynews }}</p>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-xl-3 d-flex mb-4">
+                    <div class="info bg-light p-4">
+                        <p><span>Рейтинг:</span> {{ rating }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% else %}
+                <div class="col-lg-6 col-xl-3 d-flex mb-4">
+                    <div class="info bg-light p-4">
+                        <p><span>Статус:</span> Пользователь</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="row block-9">
+                <div class="col-lg-6 d-flex">
+                    <!-- Универсальная форма -->
+                    <form id="authorForm" action="{% url 'save_author' %}" enctype="multipart/form-data" method="post" class="bg-light p-4 contact-form w-100">
+                        {% csrf_token %}
+
+                        <h4 class="mb-4">{% if has_author_record %}Редактировать профиль{% else %}Стать автором{% endif %}</h4>
+
+                        <!-- Поле для фото -->
+                        <div class="form-group mb-3">
+                            <label for="id_photo" class="form-label">Фото профиля</label>
+                            <input type="file" name="photo" id="id_photo" class="form-control">
+                            <small class="form-text text-muted">По желанию (JPEG, PNG, JPG)</small>
+                            {% if author and author.photo %}
+                                <div class="mt-2">
+                                    <small>Текущее фото: <a href="{{ author.photo.url }}" target="_blank">посмотреть</a></small>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Поле для никнейма -->
+                        <div class="form-group mb-3">
+                            <label for="id_username" class="form-label">Никнейм *</label>
+                            <input type="text" name="username" id="id_username" class="form-control"
+                                   placeholder="Ваш никнейм"
+                                   value="{{ request.user.username }}"
+                                   maxlength="20" required>
+                            <small class="form-text text-muted">Не более 20 символов</small>
+                        </div>
+
+                        <!-- Поле "О себе" -->
+                        <div class="form-group mb-4">
+                            <label for="id_description" class="form-label">О себе *</label>
+                            <textarea name="description" id="id_description" class="form-control"
+                                      placeholder="Расскажите о себе..."
+                                      rows="4" minlength="30" required>{% if author %}{{ author.description }}{% endif %}</textarea>
+                            <small class="form-text text-muted">Минимум 30 символов</small>
+                        </div>
+
+                        <!-- Кнопка отправки -->
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary py-2 px-4">
+                                {% if has_author_record %}Сохранить изменения{% else %}Стать автором{% endif %}
+                            </button>
+
+                            {% if has_author_record and not is_author %}
+                            <a href="{% url 'upgrade' %}" class="btn btn-success py-2 px-4 ms-2">
+                                Снова стать автором
+                            </a>
+                            {% endif %}
+                        </div>
+
+                        <div id="formMessages"></div>
+                    </form>
+                </div>
+
+                <div class="col-lg-6 d-flex align-items-stretch">
+                    {% if author and author.photo %}
+                        <div style="width:100%; display: flex; flex-direction: column;">
+                            <img style="width: 100%; max-height: 300px; object-fit: cover;"
+                                 src="{{ author.photo.url }}" alt="Фото профиля">
+                            {% if author.description %}
+                                <div class="mt-3 p-3 bg-light">
+                                    <h4>О себе:</h4>
+                                    <p>{{ author.description }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="d-flex flex-column justify-content-center align-items-center w-100">
+                            <img src="{% static 'images/nophoto.jpg' %}"
+                                 alt="Нет фото" style="max-height: 300px;">
+                            <p class="mt-3 text-muted">Фото профиля отсутствует</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'logout' %}" class="btn btn-danger">Выйти</a>
+
+                        {% if is_author %}
+                        <a href="{% url 'disupgrade' %}" class="btn btn-warning"
+                           onclick="return confirm('Вы уверены, что хотите перестать быть автором?')">
+                            Перестать быть автором
+                        </a>
+                        {% endif %}
+
+                        {% if has_author_record %}
+                        <a href="{% url 'delete_author' %}" class="btn btn-outline-danger"
+                           onclick="return confirm('Удалить профиль автора? Это действие нельзя отменить.')">
+                            Удалить профиль
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#authorForm').on('submit', function(e) {
+        e.preventDefault();
+
+        var formData = new FormData(this);
+        var messagesContainer = $('#formMessages');
+
+        messagesContainer.html('<div class="alert alert-info">Сохранение...</div>');
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    messagesContainer.html('<div class="alert alert-success">' + response.message + '</div>');
+                    // Обновляем страницу через секунду, чтобы увидеть изменения
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    var errors = '';
+                    if (response.errors) {
+                        for (var field in response.errors) {
+                            errors += response.errors[field].join('<br>') + '<br>';
+                        }
+                    }
+                    messagesContainer.html('<div class="alert alert-danger">' + (response.error || errors || 'Ошибка сохранения') + '</div>');
+                }
+            },
+            error: function() {
+                messagesContainer.html('<div class="alert alert-danger">Ошибка соединения</div>');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
