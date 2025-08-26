@@ -1,0 +1,67 @@
+<!-- authors/author_form.html -->
+<form action="{% if is_author %}{% url 'editauthor' %}{% else %}{% url 'createauthor' %}{% endif %}"
+      enctype="multipart/form-data" method="post" class="bg-light p-4 contact-form">
+    {% csrf_token %}
+
+    <h4 class="mb-4">{% if is_author %}Редактировать профиль автора{% else %}Стать автором{% endif %}</h4>
+
+    <!-- Поле для фото -->
+    <div class="form-group mb-3">
+        <label for="id_photo" class="form-label">Фото профиля</label>
+        <input type="file" name="photo" id="id_photo" class="form-control">
+        <small class="form-text text-muted">По желанию (JPEG, PNG, JPG)</small>
+        {% if is_author and author.photo %}
+            <div class="mt-2">
+                <small>Текущее фото: {{ author.photo.name }}</small>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Поле для никнейма -->
+    <div class="form-group mb-3">
+        <label for="id_username" class="form-label">Никнейм *</label>
+        <input type="text" name="username" id="id_username" class="form-control"
+               placeholder="Ваш никнейм"
+               value="{% if is_author %}{{ author.user.username }}{% endif %}"
+               maxlength="20" required>
+        <small class="form-text text-muted">Не более 20 символов</small>
+    </div>
+
+    <!-- Поле "О себе" -->
+    <div class="form-group mb-4">
+        <label for="id_description" class="form-label">О себе *</label>
+        <textarea name="description" id="id_description" class="form-control"
+                  placeholder="Расскажите о себе..."
+                  rows="4" minlength="30" required>{% if is_author %}{{ author.description }}{% endif %}</textarea>
+        <small class="form-text text-muted">
+            Минимум 30 символов. Расскажите о своих интересах и опыте.
+        </small>
+    </div>
+
+    <!-- Кнопка отправки -->
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary py-2 px-4">
+            {% if is_author %}Сохранить изменения{% else %}Стать автором{% endif %}
+        </button>
+
+        {% if is_author %}
+        <a href="{% url 'index' %}" class="btn btn-secondary py-2 px-4 ms-2">Отмена</a>
+        {% endif %}
+    </div>
+
+    {% if form.errors %}
+    <div class="alert alert-danger mt-3">
+        <strong>Ошибки:</strong>
+        <ul>
+        {% for field in form %}
+            {% for error in field.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</form>

@@ -1,18 +1,35 @@
-<form action="{% url 'createauthor' %}" enctype="multipart/form-data" method="post" class="bg-light p-5 contact-form">
-                  {% csrf_token %}
-	              <input type="file" name="photo" multiple id="id_photo" class="form-group">
-	              <div class="form-group">
-                      <label for="id_username">Никнейм</label>
-	                <input type="text" name="username" id="id_username" class="form-control" placeholder="Никнейм">
-					  <p>Не более 20 символов</p>
-	              </div>
-	              <div class="form-group">
-                      <label for="id_description">О себе</label>
-	                <input type="text" name="description" id="id_description" class="form-control" placeholder="О себе">
-					  <p>С заглавной буквы</p>
-					  <p>Минимум 30 символов</p>
-	              </div>
-                  <div class="form-group">
-	                <input type="submit" value="Сохранить изменения" class="btn btn-primary py-3 px-5">
-				  </div>
+<form action="{% if is_author %}{% url 'editauthor' %}{% else %}{% url 'createauthor' %}{% endif %}" enctype="multipart/form-data" method="post" class="bg-light p-5 contact-form">
+    {% csrf_token %}
+
+    <!-- Поле для фото -->
+    <div class="form-group">
+        <label for="id_photo">Фото профиля</label>
+        <input type="file" name="photo" id="id_photo" class="form-control">
+        <small class="form-text text-muted">По желанию</small>
+    </div>
+
+    <!-- Поле для никнейма -->
+    <div class="form-group">
+        <label for="id_username">Никнейм</label>
+        <input type="text" name="username" id="id_username" class="form-control"
+               placeholder="Никнейм" value="{% if author %}{{ author.user.username }}{% endif %}"
+               maxlength="20" required>
+        <small class="form-text text-muted">Не более 20 символов</small>
+    </div>
+
+    <!-- Поле "О себе" -->
+    <div class="form-group">
+        <label for="id_description">О себе</label>
+        <textarea name="description" id="id_description" class="form-control"
+                  placeholder="О себе" rows="4" minlength="30" required>{% if author %}{{ author.description }}{% endif %}</textarea>
+        <small class="form-text text-muted">
+            С заглавной буквы. Минимум 30 символов.
+        </small>
+    </div>
+
+    <!-- Кнопка отправки -->
+    <div class="form-group">
+        <input type="submit" value="{% if is_author %}Сохранить изменения{% else %}Стать автором{% endif %}"
+               class="btn btn-primary py-3 px-5">
+    </div>
 </form>
