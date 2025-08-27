@@ -192,7 +192,7 @@ class SimpleTest(StaticLiveServerTestCase):
 
             try:
                 # Ищем ссылку "Нравится"
-                like_link_selector = 'a[href*="like"]:first-child',
+                like_link_selector = 'a[href*="like"]:first-child'
 
                 like_link = None
                 try:
@@ -201,56 +201,136 @@ class SimpleTest(StaticLiveServerTestCase):
                     print('Не удалось найти ссылку лайка')
 
                 if like_link:
-                    # Получаем текущее количество лайков из текста ссылки
-                    like_text = like_link.text
-
-                    # Извлекаем число лайков из текста "Нравится (X)"
-                    import re
-                    match = re.search(r'\((\d+)\)', like_text)
-                    if match:
-                        initial_likes = int(match.group(1))
-                    else:
-                        initial_likes = 0
-                        print("Не удалось извлечь количество лайков, предполагаем 0")
+                    # Получаем текущее количество лайков из БД
+                    from ..models import Likes
+                    initial_likes_count = Likes.objects.filter(rating=self.news).count()
+                    # Изначально должно быть 0 лайков в БД
 
                     # Кликаем на ссылку лайка
                     like_link.click()
-                    time.sleep(2)
+                    time.sleep(1)
 
-                    # После клика страница перезагружается, Ищем обновленную ссылку лайка
-                    updated_like_link = None
-                    try:
-                        updated_like_link = self.browser.find_element(By.CSS_SELECTOR, like_link_selector)
-                    except:
-                        print('Не удалось найти ссылку лайка')
+                    # Проверяем изменение в БД после клика, должно стать 1 лайк в БД
+                    final_likes_count = Likes.objects.filter(rating=self.news).count()
 
-                    if updated_like_link:
-                        updated_like_text = updated_like_link.text
-
-                        # Извлекаем новое количество лайков
-                        match = re.search(r'\((\d+)\)', updated_like_text)
-                        if match:
-                            final_likes = int(match.group(1))
-
-                            # Проверяем, что лайк увеличился
-                            self.assertEqual(final_likes, initial_likes + 1,
-                                             f"Количество лайков должно увеличиться с {initial_likes} до {initial_likes + 1}, но стало {final_likes}")
-
-                        else:
-                            print("Не удалось получить количество лайков после клика")
-                    else:
-                        print("Не удалось найти ссылку лайка после клика")
+                    # Проверяем, что лайк увеличился на 1
+                    self.assertEqual(final_likes_count, initial_likes_count + 1,
+                                     f"Количество лайков должно увеличиться с {initial_likes_count} до {initial_likes_count + 1}, но стало {final_likes_count}")
 
                 else:
                     print("Ссылка лайка не найдена")
-                    # Делаем скриншот для отладки
                     self.browser.save_screenshot('like_link_not_found.png')
 
             except Exception as e:
                 print(f"Ошибка при попытке поставить лайк: {e}")
                 self.browser.save_screenshot('like_error.png')
 
-            print("Тест завершен успешно!")
+            # Отправка сообщения пользователям
+            try:
+                users_url = f'{self.live_server_url}/chat/users/'
+                self.browser.get(users_url)
+                time.sleep(2)
+
+                # Ищем кнопку "Написать сообщение пользователю ..."
+                write_message_selector = 'a[href*="/chat/dialogs/create/"]'
+
+                write_message_btn = None
+                try:
+                    write_message_btn = self.browser.find_element(By.CSS_SELECTOR, write_message_selector)
+                except:
+                    print(f'Не удалось найти кнопку')
+
+                if write_message_btn:
+                    write_message_btn.click()
+                    time.sleep(1)
+
+                    message_form_selector = 'form[method="post"]'
+
+                    message_form = None
+                    try:
+                        message_form = self.browser.find_element(By.CSS_SELECTOR, message_form_selector)
+                    except:
+                        print(f'Не удалось найти форму сообщения')
+
+                    if message_form:
+                        message_input_selector = 'textarea[name="message"]'
+
+                        message_input = None
+                        try:
+                            message_input = self.browser.find_element(By.CSS_SELECTOR, message_input_selector)
+                        except:
+                            print(f'Не удалось найти поле ввода сообщения')
+
+                        if message_input:
+                            # Вводим тестовое сообщение
+                            test_message = "привет"
+                            message_input.clear()
+                            message_input.send_keys(test_message)
+
+                            # Ищем кнопку отправки
+                            send_button_selector = 'button[type="submit"]'
+
+                            send_button = None
+                            try:
+                                send_button = self.browser.find_element(By.CSS_SELECTOR, send_button_selector)
+                            except:
+                                print(f'Не удалось найти кнопку отправки')
+
+                            if send_button:
+                                # Сохраняем текущее количество сообщений
+                                from chat.models import Message
+                                initial_message_count = Message.objects.count()
+
+                                # Отправляем сообщение
+                                send_button.click()
+                                time.sleep(2)
+
+                                # Проверяем, что сообщение сохранилось в БД
+                                final_message_count = Message.objects.count()
+
+                                # Проверяем увеличение количества сообщений
+                                self.assertEqual(final_message_count, initial_message_count + 1,
+                                                 "Количество сообщений должно увеличиться на 1")
+
+                                # Ищем отправленное сообщение
+                                try:
+                                    sent_message = Message.objects.filter(message=test_message).latest('id')
+
+                                    # Проверяем содержание сообщения
+                                    self.assertEqual(sent_message.message, test_message,
+                                                     "Текст сообщения должен совпадать с отправленным")
+
+                                except Message.DoesNotExist:
+                                    # Выводим все сообщения для отладки
+                                    all_messages = Message.objects.all()
+                                    print(f"Все сообщения в БД: {list(all_messages)}")
+                                    raise Exception(f"Сообщение с текстом '{test_message}' не найдено в БД")
+
+                            else:
+                                print("Кнопка отправки не найдена")
+                                self.browser.save_screenshot('send_button_not_found.png')
+
+                        else:
+                            print("Поле ввода сообщения не найдено")
+                            self.browser.save_screenshot('message_input_not_found.png')
+
+                    else:
+                        print("Форма сообщения не найдена")
+                        self.browser.save_screenshot('message_form_not_found.png')
+
+                else:
+                    print("Кнопка 'Написать сообщение пользователю' не найдена")
+                    # Делаем скриншот для отладки
+                    self.browser.save_screenshot('write_message_btn_not_found.png')
+                    # Выводим HTML для отладки
+                    print("HTML страницы:")
+                    print(self.browser.page_source[:1000])
+
+            except Exception as e:
+                print(f"Ошибка при выполнении теста: {e}")
+                self.browser.save_screenshot('debug_screenshot.png')
+                print("Скриншот сохранен как debug_screenshot.png")
+                raise
 
         except Exception as e:
             print(f"Ошибка при выполнении теста: {e}")
