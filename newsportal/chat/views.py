@@ -34,6 +34,7 @@ class DialogsView(TemplateView, LoginRequiredMixin):
 
 class MessagesView(View, LoginRequiredMixin):
     """"Вьюха сообщений пользователям"""
+
     def get(self, request, chat_id):
         try:
             chat = Chat.objects.get(id=chat_id)
@@ -55,13 +56,24 @@ class MessagesView(View, LoginRequiredMixin):
         )
 
     def post(self, request, chat_id):
-        form = MessageForm(data=request.POST)
-        if form.is_valid():
-            message = form.save(commit=False)
-            message.chat_id = chat_id
-            message.author = request.user
-            message.save()
-        return redirect(reverse('messages', kwargs={'chat_id': chat_id}))
+        # Проверяем, не был ли уже обработан этот запрос
+        if request.method == 'POST' and not request.POST.get('processed', False):
+            form = MessageForm(data=request.POST)
+            if form.is_valid():
+                message = form.save(commit=False)
+                message.chat_id = chat_id
+                message.author = request.user
+                message.save()
+
+                # Помечаем запрос как обработанный
+                request.POST = request.POST.copy()
+                request.POST['processed'] = True
+
+                from django.http import HttpResponseRedirect
+                return HttpResponseRedirect(reverse('messages', kwargs={'chat_id': chat_id}))
+
+        # Если запрос уже обработан или форма невалидна
+        return self.get(request, chat_id)
 
 
 class CreateDialogView(View, LoginRequiredMixin):
