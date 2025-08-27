@@ -145,12 +145,11 @@
                     <div class="d-flex gap-2">
                         <a href="{% url 'logout' %}" class="btn btn-danger">Выйти</a>
 
-                        {% if is_author %}
-                        <a href="{% url 'disupgrade' %}" class="btn btn-warning"
-                           onclick="return confirm('Вы уверены, что хотите перестать быть автором?')">
-                            Перестать быть автором
-                        </a>
-                        {% endif %}
+<!--                        {% if is_author %}-->
+<!--                           onclick="return confirm('Вы уверены, что хотите перестать быть автором?')">-->
+<!--                            Перестать быть автором-->
+<!--                        </a>-->
+<!--                        {% endif %}-->
 
                         {% if has_author_record %}
                         <a href="{% url 'delete_author' %}" class="btn btn-outline-danger"
