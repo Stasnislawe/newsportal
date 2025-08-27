@@ -1,5 +1,5 @@
 <h1 align="center">Новостной портал</h1>
-<h2>Документация проекта через DeepWiki - https://deepwiki.com/Stasnislawe/newsportal/1-newsportal-overview</h2>
+<h2>Документация проекта через DeepWiki: тык* (https://deepwiki.com/Stasnislawe/newsportal/1-newsportal-overview)</h2>
 <h4 align="center">Находится в стадии разработки, не все реализации могут быть описаны</h4>
 <p>Пользователь может зарегестрироваться на сайте, после чего, в личном кабинете заполнить форму, для того что бы получить роль автора.</p>
 <img src="https://github.com/user-attachments/assets/8ce843b2-91be-437b-933c-0d558defa8ca">
