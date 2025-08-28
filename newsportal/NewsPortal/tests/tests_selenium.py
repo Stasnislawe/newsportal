@@ -9,6 +9,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from django.contrib.auth.models import User
 from ..models import Author, Category, Post
+from django.contrib.auth.models import Permission, Group
+from django.contrib.contenttypes.models import ContentType
 
 
 class SimpleTest(StaticLiveServerTestCase):
@@ -16,7 +18,7 @@ class SimpleTest(StaticLiveServerTestCase):
     def setUpClass(cls):
         super().setUpClass()
         firefox_options = Options()
-        firefox_options.headless = False
+        firefox_options.headless = True
         cls.browser = webdriver.Firefox(options=firefox_options)
         cls.browser.implicitly_wait(10)
 
@@ -49,6 +51,19 @@ class SimpleTest(StaticLiveServerTestCase):
             draft=True,
             author=self.author
         )
+
+        self.authors_group, created = Group.objects.get_or_create(name='authors')
+
+        if created:
+            # Добавляем права на добавление постов
+            content_type = ContentType.objects.get_for_model(Post)
+            add_permission = Permission.objects.get(
+                content_type=content_type,
+                codename='add_post'
+            )
+            self.authors_group.permissions.add(add_permission)
+        else:
+            print(f'Группа авторов не создана')
 
     def test_author_form_after_login(self):
         """Тест заполнения формы автора после успешного входа в личный кабинет"""
@@ -131,7 +146,7 @@ class SimpleTest(StaticLiveServerTestCase):
             try:
                 submit_button = self.browser.find_element(By.CSS_SELECTOR, button_selector)
             except:
-                print('Не найдено поле "Сохранить изменения"')
+                print('Не найдено поле "Стать автором"')
 
             if submit_button:
                 submit_button.click()
@@ -332,9 +347,152 @@ class SimpleTest(StaticLiveServerTestCase):
                 print("Скриншот сохранен как debug_screenshot.png")
                 raise
 
+            try:
+                # Добавляем пост через форму
+                # Ищем кнопку "Добавить пост"
+                add_post_selector = 'a[href*="/post/create/"]'
+
+                add_post_btn = None
+                try:
+                    add_post_btn = self.browser.find_element(By.CSS_SELECTOR, add_post_selector)
+                except:
+                    print(f'Не удалось найти кнопку "Добавить пост"')
+
+                if add_post_btn:
+                    add_post_btn.click()
+                    time.sleep(1)
+
+                    # Заполняем форму создания поста
+                    post_data = {
+                        'heading': 'Тестовый пост из Selenium',
+                        'text': 'Это тестовое содержание поста до изображения',
+                        'text2': 'Это тестовое содержание поста после изображения',
+                    }
+
+                    # Заполняем поле "Наименование"
+                    heading_selector = '[name="heading"]'
+                    try:
+                        heading_field = self.browser.find_element(By.CSS_SELECTOR, heading_selector)
+                        heading_field.clear()
+                        heading_field.send_keys(post_data['heading'])
+                    except:
+                        print(f'Не удалось найти поле "Наименование"')
+
+                    # Заполняем поле "Содержание до изображения"
+                    text_selector = '[name="text"]'
+                    try:
+                        text_field = self.browser.find_element(By.CSS_SELECTOR, text_selector)
+                        text_field.clear()
+                        text_field.send_keys(post_data['text'])
+                    except:
+                        print(f'Не удалось найти поле "Содержание до изображения"')
+
+                    # Заполняем поле "Содержание после изображения"
+                    text2_selector = '[name="text2"]'
+                    try:
+                        text2_field = self.browser.find_element(By.CSS_SELECTOR, text2_selector)
+                        text2_field.clear()
+                        text2_field.send_keys(post_data['text2'])
+                    except:
+                        print(f'Не удалось найти поле "Содержание после изображения"')
+
+                    # Выбираем категорию (если есть)
+                    category_selector = '[name="posts_mtm"]'
+                    try:
+                        category_field = self.browser.find_element(By.CSS_SELECTOR, category_selector)
+                        from selenium.webdriver.support.ui import Select
+                        select = Select(category_field)
+
+                        # Пытаемся выбрать категорию по видимому тексту
+                        try:
+                            select.select_by_visible_text('Тестовая категория')
+                        except:
+                            # Если не получается по тексту, выбираем по value
+                            options = select.options
+                            for i, option in enumerate(options):
+                                if 'Тестовая' in option.text:
+                                    select.select_by_index(i)
+                                    print(f"Выбрана категория по индексу {i}: {option.text}")
+                                    break
+                            else:
+                                # Если ничего не найдено, выбираем первую доступную
+                                select.select_by_index(0)
+                                print("Выбрана первая доступная категория")
+
+                    except Exception as e:
+                        print(f"Ошибка при выборе категории: {e}")
+                        pass
+
+                    # Выбираем тип поста
+                    post_type_selector = '[name="post_type"]'
+                    try:
+                        post_type_field = self.browser.find_element(By.CSS_SELECTOR, post_type_selector)
+                        select = Select(post_type_field)
+                        select.select_by_index(1)  # Выбираем первый вариант
+                    except:
+                        print(f'Не удалось найти поле "тип поста"')
+
+                    # Загружаем изображение
+                    image_selector = '[name="image"]'
+                    try:
+                        image_field = self.browser.find_element(By.CSS_SELECTOR, image_selector)
+                        base_dir = settings.BASE_DIR
+                        test_image_path = os.path.join(base_dir, 'media', 'nophoto.jpg')
+                        if os.path.exists(test_image_path):
+                            image_field.send_keys(test_image_path)
+                    except:
+                        print(f'Не удалось найти поле изображение')
+
+                    # Сохраняем текущее количество постов в БД
+                    initial_post_count = Post.objects.count()
+                    # Текущее значение постов должно быть равно одному (1)
+
+                    # Находим и нажимаем кнопку сохранения
+                    submit_selector = 'input[type="submit"]'
+
+                    submit_btn = None
+                    try:
+                        submit_btn = self.browser.find_element(By.CSS_SELECTOR, submit_selector)
+                        if submit_btn:
+                            submit_btn.click()
+                    except:
+                        print(f'Не удалось найти кнопку сохранения')
+
+                    time.sleep(3)
+
+                    # Проверяем, что пост сохранился в БД
+                    final_post_count = Post.objects.count()
+
+                    # Проверяем увеличение количества постов
+                    self.assertEqual(final_post_count, initial_post_count + 1,
+                                     "Количество постов должно увеличиться на 1")
+
+                    # Ищем созданный пост
+                    try:
+                        created_post = Post.objects.filter(heading=post_data['heading']).latest('id')
+
+                        # Проверяем содержание поста
+                        self.assertEqual(created_post.heading, post_data['heading'])
+                        self.assertEqual(created_post.text, post_data['text'])
+                        self.assertEqual(created_post.text2, post_data['text2'])
+
+                    except Post.DoesNotExist:
+                        all_posts = Post.objects.all()
+                        print(f"Все посты в БД: {list(all_posts)}")
+                        raise Exception(f"Пост с заголовком '{post_data['heading']}' не найден в БД")
+
+                else:
+                    print("Кнопка 'Добавить пост' не найдена")
+                    self.browser.save_screenshot('add_post_btn_not_found.png')
+
+            except Exception as e:
+                print(f"Ошибка при выполнении теста: {e}")
+                self.browser.save_screenshot('debug_screenshot_.png')
+                print("Скриншот сохранен как debug_screenshot.png")
+                raise
+
         except Exception as e:
             print(f"Ошибка при выполнении теста: {e}")
-            # Делаем скриншот для отладки
             self.browser.save_screenshot('debug_screenshot.png')
             print("Скриншот сохранен как debug_screenshot.png")
             raise
