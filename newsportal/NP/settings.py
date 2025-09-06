@@ -120,11 +120,11 @@ DATABASES = {
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'newsportal_db',
-#         'USER': 'postgres',
-#         'PASSWORD': 'z4LR5uwM',
-#         'HOST': 'localhost',
-#         'PORT': 5432,
+#         'NAME': os.getenv('NAME'),
+#         'USER': os.getenv('USER'),
+#         'PASSWORD': os.getenv('PASSWORD'),
+#         'HOST': os.getenv('HOST'),
+#         'PORT': os.getenv('PORT')
 #     }
 # }
 
