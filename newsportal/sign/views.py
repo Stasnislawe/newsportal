@@ -31,7 +31,7 @@ class BaseRegisterView(CreateView):
     success_url = reverse_lazy('login')
 
 
-# views.py
+
 class IndexView(LoginRequiredMixin, TemplateView):
     template_name = 'account/index.html'
 

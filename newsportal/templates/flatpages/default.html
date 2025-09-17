@@ -37,17 +37,22 @@
 		<a href="#" class="js-colorlib-nav-toggle colorlib-nav-toggle"><i></i></a>
 		<aside id="colorlib-aside" role="complementary" class="js-fullheight">
 			<nav id="colorlib-main-menu" role="navigation">
-				<ul>
-					<li><a href="{% url 'news_list' %}">Главная</a></li>
-					<li><a href="{% url 'index' %}">Личный Кабинет</a></li>
-                    <li><a href="{% url 'users' %}">Пользователи</a></li>
-                    <li><a href="{% url 'dialogs' %}">Сообщения</a></li>
-                    {% if not is_not_author %}
-					<li><a href="{% url 'post_create' %}">Добавить Пост</a></li>
-					<li><a href="{% url 'myviews' %}">Мои Посты</a></li>
+                <ul>
+                    <li><a href="{% url 'news_list' %}">Главная</a></li>
+
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'index' %}">Личный Кабинет</a></li>
+                        <li><a href="{% url 'users' %}">Пользователи</a></li>
+                        <li><a href="{% url 'dialogs' %}">Сообщения</a></li>
+
+                        {% if not is_not_author %}
+                            <li><a href="{% url 'post_create' %}">Добавить Пост</a></li>
+                            <li><a href="{% url 'myviews' %}">Мои Посты</a></li>
+                        {% endif %}
+
                     {% endif %}
-				</ul>
-			</nav>
+                </ul>
+            </nav>
 
 			<div class="colorlib-footer">
 				<h1 id="colorlib-logo" class="mb-4"><a href="https://github.com/Stasnislawe/newsportal" style="background-image: url({% static 'images/bg_1.jpg' %});">Новостной<span>Портал</span></a></h1>
